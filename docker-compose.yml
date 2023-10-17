@@ -4,4 +4,4 @@ services:
     build:
       context: https://github.com/tidybee/tidybee-agent.git#79-improve-the-agents-dockerfile-and-add-docs-on-how-to-run-it
     ports:
-      - "8082:8082"
+      - "${AGENT_PORT}:8082"

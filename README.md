@@ -1,3 +1,3 @@
 ```
-docker compose -f docker-compose.yml up
+./start-agent.sh
 ```
