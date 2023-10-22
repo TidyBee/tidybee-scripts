@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+commandfound() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+printexit() {
+    echo "$1" >&2
+    exit 1
+}
+
+if ! commandfound curl; then
+    printexit "tb: command not found: curl"
+elif ! commandfound docker; then
+    printexit "tb: command not found: docker"
+elif ! commandfound jq; then
+    printexit "tb: command not found: jq"
+fi
+
+if [ "$1" == "start" ]; then
+    echo "start"
+    #docker compose --file docker-compose.yml up
+elif [ "$1" == "stop" ]; then
+    echo "stop"
+    #docker compose --file docker-compose.yml stop
+else
+    printexit "tb: usage: <start|stop> [container...]"
+fi
