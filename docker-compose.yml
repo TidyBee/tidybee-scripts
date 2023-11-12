@@ -11,3 +11,10 @@ services:
     ports:
       - "5002:5002"
       - "5001:5001"
+  frontend:
+    build:
+      context: git@github.com:TidyBee/tidybee-frontend.git#40-dev-dockerfile-for-tidybee-scripts
+      ssh:
+        - default
+    ports:
+      - "5001:5001"
