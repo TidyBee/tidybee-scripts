@@ -9,7 +9,7 @@ services:
     build:
       context: ./tidybee-hub
     ports:
-      - "5000:5000"
+      - "5002:5002"
       - "5001:5001"
   frontend:
     build:
