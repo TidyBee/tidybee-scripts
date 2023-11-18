@@ -1,46 +1,42 @@
 # tidybee-scripts
-## Set up TidyBee repositories
-### frontend repository
+## Run tidybee containers
+Build, run and stop containers using the following commands:
 ```
-git clone git@github.com:TidyBee/tidybee-frontend.git
-(cd tidybee-frontend && git checkout 40-dev-dockerfile-for-tidybee-scripts)
-```
-
-### hub repository
-```
-git clone git@github.com:TidyBee/tidybee-hub.git
-(cd tidybee-hub && git checkout 12-dev-dockerfile-for-tidybee-scripts)
+git clone git@github.com:tidybee/tidybee-scripts.git
+cd tidybee-scripts
+docker compose -f docker-compose.yml <COMMAND> [SERVICE...]
 ```
 
-### agent repository
+## Run tidybee containers (debug)
+Clone the repositories:
 ```
-git clone git@github.com:TidyBee/tidybee-agent.git
+# agent
+git clone git@github.com:tidybee/tidybee-agent.git
 (cd tidybee-agent && git checkout 79-improve-the-agents-dockerfile-and-add-docs-on-how-to-run-it)
-```
 
-### scripts repository
-```
-git clone git@github.com:TidyBee/tidybee-scripts.git
-cp tidybee-scripts/docker-compose-local.yml .
+# frontend
+git clone git@github.com:tidybee/tidybee-frontend.git
+
+# hub
+git clone git@github.com:tidybee/tidybee-hub.git
+(cd tidybee-hub && git checkout 12-dev-dockerfile-for-tidybee-scripts)
+
+# scripts
+git clone git@github.com:tidybee/tidybee-scripts.git
+ln -s tidybee-scripts/docker-compose-local.yml .
 ```
 
 Now you should have this file structure:
 ```
 .
-├── docker-compose-local.yml
+├── docker-compose-local.yml -> tidybee-scripts/docker-compose-local.yml
 ├── tidybee-agent/
 ├── tidybee-frontend/
 ├── tidybee-hub/
 └── tidybee-scripts/
 ```
 
-## Run TidyBee containers
-### Create and start containers
+Build, run and stop containers:
 ```
-docker compose -f docker-compose-local.yml up [SERVICE...]
-```
-
-### Stop and remove containers
-```
-docker compose -f docker-compose-local.yml down [SERVICE...]
+docker compose -f docker-compose-local.yml <COMMAND> [SERVICE...]
 ```
