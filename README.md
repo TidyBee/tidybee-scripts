@@ -12,14 +12,13 @@ Clone the repositories:
 ```
 # agent
 git clone git@github.com:tidybee/tidybee-agent.git
-(cd tidybee-agent && git checkout 79-improve-the-agents-dockerfile-and-add-docs-on-how-to-run-it)
-
-# frontend
-git clone git@github.com:tidybee/tidybee-frontend.git
 
 # hub
 git clone git@github.com:tidybee/tidybee-hub.git
 (cd tidybee-hub && git checkout 12-dev-dockerfile-for-tidybee-scripts)
+
+# frontend
+git clone git@github.com:tidybee/tidybee-frontend.git
 
 # scripts
 git clone git@github.com:tidybee/tidybee-scripts.git
