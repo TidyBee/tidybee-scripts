@@ -4,13 +4,12 @@ services:
     build:
       context: ./tidybee-agent
     ports:
-      - "8082:8082"
+      - "8111:8111"
   hub:
     build:
       context: ./tidybee-hub
     ports:
       - "5002:5002"
-      - "5001:5001"
   frontend:
     build:
       context: ./tidybee-frontend

@@ -4,13 +4,12 @@ services:
     build:
       context: https://github.com/tidybee/tidybee-agent.git
     ports:
-      - "8082:8082"
+      - "8111:8111"
   hub:
     build:
       context: https://github.com/tidybee/tidybee-hub.git#12-dev-dockerfile-for-tidybee-scripts
     ports:
       - "5002:5002"
-      - "5001:5001"
   frontend:
     build:
       context: git@github.com:tidybee/tidybee-frontend.git
