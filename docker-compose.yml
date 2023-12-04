@@ -7,7 +7,7 @@ services:
       - "8111:8111"
   hub:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git#12-dev-dockerfile-for-tidybee-scripts
+      context: https://github.com/tidybee/tidybee-hub.git
     ports:
       - "5002:5002"
   frontend:

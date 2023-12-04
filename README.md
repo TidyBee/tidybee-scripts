@@ -15,7 +15,6 @@ git clone git@github.com:tidybee/tidybee-agent.git
 
 # hub
 git clone git@github.com:tidybee/tidybee-hub.git
-(cd tidybee-hub && git checkout 12-dev-dockerfile-for-tidybee-scripts)
 
 # frontend
 git clone git@github.com:tidybee/tidybee-frontend.git
