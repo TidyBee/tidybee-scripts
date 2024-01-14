@@ -5,14 +5,27 @@ services:
       context: https://github.com/tidybee/tidybee-agent.git
     ports:
       - "8111:8111"
-  hub:
+  hub-api-gateway:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#set-cors-policy-origins
+      dockerfile: ./ApiGateway/Dockerfile
     ports:
-      - "5002:5002"
+      - "7001:80"
+  hub-auth:
+    build:
+      context: https://github.com/tidybee/tidybee-hub.git#set-cors-policy-origins
+      dockerfile: ./Auth/Dockerfile
+    ports:
+      - "7002:80"
+  hub-data-processing:
+    build:
+      context: https://github.com/tidybee/tidybee-hub.git#set-cors-policy-origins
+      dockerfile: ./DataProcessing/Dockerfile
+    ports:
+      - "7003:80"
   frontend:
     build:
-      context: git@github.com:tidybee/tidybee-frontend.git
+      context: git@github.com:tidybee/tidybee-frontend.git#update-hub-routes
       ssh:
         - default
     ports:
