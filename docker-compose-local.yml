@@ -5,11 +5,24 @@ services:
       context: ./tidybee-agent
     ports:
       - "8111:8111"
-  hub:
+  hub-api-gateway:
     build:
       context: ./tidybee-hub
+      dockerfile: ./ApiGateway/Dockerfile
     ports:
-      - "5002:5002"
+      - "7001:80"
+  hub-auth:
+    build:
+      context: ./tidybee-hub
+      dockerfile: ./Auth/Dockerfile
+    ports:
+      - "7002:80"
+  hub-data-processing:
+    build:
+      context: ./tidybee-hub
+      dockerfile: ./DataProcessing/Dockerfile
+    ports:
+      - "7003:80"
   frontend:
     build:
       context: ./tidybee-frontend
