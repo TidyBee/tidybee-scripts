@@ -21,13 +21,13 @@ git clone git@github.com:tidybee/tidybee-frontend.git
 
 # scripts
 git clone git@github.com:tidybee/tidybee-scripts.git
-ln -s tidybee-scripts/docker-compose-local.yml .
+ln -s tidybee-scripts/compose/docker-compose-local.yml .
 ```
 
 Now you should have this file structure:
 ```
 .
-├── docker-compose-local.yml -> tidybee-scripts/docker-compose-local.yml
+├── docker-compose-local.yml -> tidybee-scripts/compose/docker-compose-local.yml
 ├── tidybee-agent/
 ├── tidybee-frontend/
 ├── tidybee-hub/

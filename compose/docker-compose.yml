@@ -11,6 +11,9 @@ services:
       dockerfile: ./ApiGateway/Dockerfile
     ports:
       - "7001:80"
+    depends_on:
+      - hub-auth
+      - hub-data-processing
   hub-auth:
     build:
       context: https://github.com/tidybee/tidybee-hub.git#set-cors-policy-origins

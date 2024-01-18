@@ -11,6 +11,9 @@ services:
       dockerfile: ./ApiGateway/Dockerfile
     ports:
       - "7001:80"
+    depends_on:
+      - hub-auth
+      - hub-data-processing
   hub-auth:
     build:
       context: ./tidybee-hub
