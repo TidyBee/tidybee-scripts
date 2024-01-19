@@ -2,7 +2,7 @@ version: '3.9'
 services:
   agent:
     build:
-      context: https://github.com/tidybee/tidybee-agent.git
+      context: https://github.com/tidybee/tidybee-agent.git#implement-configuration-as-struct
     ports:
       - "8111:8111"
   hub-api-gateway:
