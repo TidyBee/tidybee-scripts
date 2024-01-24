@@ -3,7 +3,7 @@
 Build, run and stop containers using the following commands:
 ```
 git clone git@github.com:tidybee/tidybee-scripts.git
-cd tidybee-scripts
+cd tidybee-scripts/compose
 docker compose <COMMAND> [SERVICE...]
 ```
 
