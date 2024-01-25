@@ -28,7 +28,7 @@ services:
       - "7003:80"
   frontend:
     build:
-      context: git@github.com:tidybee/tidybee-frontend.git#update-hub-routes
+      context: git@github.com:tidybee/tidybee-frontend.git
       ssh:
         - default
     ports:
