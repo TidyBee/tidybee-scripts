@@ -1,13 +1,19 @@
 # tidybee-scripts
-## Run tidybee containers
-Build, run and stop containers using the following commands:
+
+## compose
+
+### Run tidybee containers
+#### Setup SSH agent
+[Follow these instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) to generate a new SSH key and add it to the ssh-agent.
+
+Then build, run and stop containers using the following commands:
 ```
 git clone git@github.com:tidybee/tidybee-scripts.git
 cd tidybee-scripts/compose
 docker compose <COMMAND> [SERVICE...]
 ```
 
-## Run tidybee containers (debug)
+### Run tidybee containers (debug)
 Clone the repositories:
 ```
 # agent

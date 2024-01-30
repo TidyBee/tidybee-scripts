@@ -7,7 +7,7 @@ services:
       - "8111:8111"
   hub-api-gateway:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git#set-cors-policy-origins
+      context: https://github.com/tidybee/tidybee-hub.git
       dockerfile: ./ApiGateway/Dockerfile
     ports:
       - "7001:80"
@@ -16,13 +16,13 @@ services:
       - hub-data-processing
   hub-auth:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git#set-cors-policy-origins
+      context: https://github.com/tidybee/tidybee-hub.git
       dockerfile: ./Auth/Dockerfile
     ports:
       - "7002:80"
   hub-data-processing:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git#set-cors-policy-origins
+      context: https://github.com/tidybee/tidybee-hub.git
       dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
