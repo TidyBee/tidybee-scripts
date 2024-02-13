@@ -28,8 +28,6 @@ services:
       - "7003:80"
   frontend:
     build:
-      context: git@github.com:tidybee/tidybee-frontend.git
-      ssh:
-        - default
+      context: https://github.com/tidybee/tidybee-frontend.git
     ports:
       - "8080:8080"
