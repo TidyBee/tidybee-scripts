@@ -7,7 +7,7 @@ services:
       - "8111:8111"
   hub-api-gateway:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#database-outside-the-scope
       dockerfile: ./ApiGateway/Dockerfile
     ports:
       - "7001:80"
@@ -16,15 +16,15 @@ services:
       - hub-data-processing
   hub-auth:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#database-outside-the-scope
       dockerfile: ./Auth/Dockerfile
     ports:
       - "7002:80"
     volumes:
-      - /app/database:/database
+      - ./database:/app/database
   hub-data-processing:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#database-outside-the-scope
       dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
