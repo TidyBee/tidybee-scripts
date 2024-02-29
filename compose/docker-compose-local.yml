@@ -20,6 +20,8 @@ services:
       dockerfile: ./Auth/Dockerfile
     ports:
       - "7002:80"
+    volumes:
+      - ./database:/app/database
   hub-data-processing:
     build:
       context: ./tidybee-hub
