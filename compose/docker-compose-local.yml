@@ -5,6 +5,8 @@ services:
       context: ./tidybee-agent
     ports:
       - "8111:8111"
+    environment:
+      - TIDY_ENV=docker
   hub-api-gateway:
     build:
       context: ./tidybee-hub
