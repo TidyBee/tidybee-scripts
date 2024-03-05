@@ -2,7 +2,7 @@ version: '3.9'
 services:
   agent:
     build:
-      context: https://github.com/TidyBee/tidybee-agent.git#106-implement-a-tidy-hub-communication-module-within-the-agent
+      context: https://github.com/TidyBee/tidybee-agent.git
     ports:
       - "8111:8111"
     environment:
