@@ -34,4 +34,4 @@ services:
     build:
       context: ./tidybee-frontend
     ports:
-      - "8080:8080"
+      - "8080:80"

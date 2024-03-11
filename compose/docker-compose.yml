@@ -32,6 +32,6 @@ services:
       - "7003:80"
   frontend:
     build:
-      context: https://github.com/tidybee/tidybee-frontend.git
+      context: https://github.com/tidybee/tidybee-frontend.git#Implement-production-image
     ports:
-      - "8080:8080"
+      - "8080:80"
