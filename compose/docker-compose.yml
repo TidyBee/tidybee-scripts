@@ -9,7 +9,7 @@ services:
       - TIDY_ENV=docker
   hub-api-gateway:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#move-database-inside-repo
       dockerfile: ./ApiGateway/Dockerfile
     ports:
       - "7001:80"
@@ -18,7 +18,7 @@ services:
       - hub-data-processing
   hub-auth:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#move-database-inside-repo
       dockerfile: ./Auth/Dockerfile
     ports:
       - "7002:80"
@@ -26,7 +26,7 @@ services:
       - ./database:/app/Database
   hub-data-processing:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#move-database-inside-repo
       dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
