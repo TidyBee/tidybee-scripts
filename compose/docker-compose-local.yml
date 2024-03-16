@@ -23,7 +23,7 @@ services:
     ports:
       - "7002:80"
     volumes:
-      - ./database:/app/database
+      - ./database:/app/Database
   hub-data-processing:
     build:
       context: ./tidybee-hub
