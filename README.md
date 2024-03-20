@@ -1,8 +1,14 @@
 # tidybee-scripts
-
 ## compose
+### Run containers from GHCR
+The default compose file will pull the images from GitHub Container Registry and run them. Use the following commands to do so:
+```
+git clone git@github.com:tidybee/tidybee-scripts.git
+cd tidybee-scripts/compose
+docker compose <COMMAND> [SERVICE...]
+```
 
-### Run tidybee containers
+### Run containers from git repositories
 #### Setup SSH agent
 [Follow these instructions](https://docs.github.com/en/authentication/connecting-to-github-with-ssh) to generate a new SSH key and add it to the ssh-agent.
 
@@ -10,7 +16,7 @@ Then build, run and stop containers using the following commands:
 ```
 git clone git@github.com:tidybee/tidybee-scripts.git
 cd tidybee-scripts/compose
-docker compose <COMMAND> [SERVICE...]
+docker compose -f docker-compose-git.yml <COMMAND> [SERVICE...]
 ```
 
 ### Run tidybee containers (debug)
