@@ -1,8 +1,7 @@
 version: '3.9'
 services:
   agent:
-    build:
-      context: https://github.com/TidyBee/tidybee-agent.git
+    image: ghcr.io/tidybee/tidybee-agent:main
     ports:
       - "8111:8111"
     environment:
