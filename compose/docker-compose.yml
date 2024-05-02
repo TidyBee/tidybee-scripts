@@ -1,29 +1,37 @@
 version: '3.9'
 services:
   agent:
-    image: ghcr.io/tidybee/tidybee-agent:main
+    build:
+      context: https://github.com/TidyBee/tidybee-agent.git
     ports:
       - "8111:8111"
     environment:
       - TIDY_ENV=docker
   hub-api-gateway:
-    image: ghcr.io/tidybee/tidybee-hub-api-gateway:main
+    build:
+      context: https://github.com/tidybee/tidybee-hub.git#42-output-dataprocessing
+      dockerfile: ./ApiGateway/Dockerfile
     ports:
       - "7001:80"
     depends_on:
       - hub-auth
       - hub-data-processing
   hub-auth:
-    image: ghcr.io/tidybee/tidybee-hub-auth:main
+    build:
+      context: https://github.com/tidybee/tidybee-hub.git#42-output-dataprocessing
+      dockerfile: ./Auth/Dockerfile
     ports:
       - "7002:80"
     volumes:
       - ./database:/app/Database
   hub-data-processing:
-    image: ghcr.io/tidybee/tidybee-hub-data-processing:main
+    build:
+      context: https://github.com/tidybee/tidybee-hub.git#42-output-dataprocessing
+      dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
   frontend:
-    image: ghcr.io/tidybee/tidybee-frontend:main
+    build:
+      context: https://github.com/tidybee/tidybee-frontend.git
     ports:
       - "8080:80"
