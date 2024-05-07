@@ -35,4 +35,3 @@ services:
       context: https://github.com/tidybee/tidybee-frontend.git
     ports:
       - "8080:80"
-	
