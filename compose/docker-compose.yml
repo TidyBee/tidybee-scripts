@@ -19,10 +19,22 @@ services:
       - "7002:80"
     volumes:
       - ./database:/app/Database
+    depends_on:
+      - hub-postgres
   hub-data-processing:
     image: ghcr.io/tidybee/tidybee-hub-data-processing:main
     ports:
       - "7003:80"
+  hub-postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: POSTGRES_DB
+      POSTGRES_USER: POSTGRES_USER
+      POSTGRES_PASSWORD: POSTGRES_PASSWORD
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
   frontend:
     image: ghcr.io/tidybee/tidybee-frontend:main
     ports:
