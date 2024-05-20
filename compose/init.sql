@@ -116,18 +116,15 @@ CREATE OR REPLACE FUNCTION calculate_duplicated_score(file_id INT)
 RETURNS VOID AS $$
 DECLARE
     occurrence_count INT;
-    new_score CHAR(1); -- Nouveau score calculé
+    new_score CHAR(1);
 BEGIN
-    -- Compter les occurrences du hash du fichier dans la table files
     SELECT COUNT(*) INTO occurrence_count
     FROM files
     WHERE file_hash = (SELECT file_hash FROM files WHERE id = file_id)
-    AND id != file_id; -- Exclure le fichier actuel de la recherche de doublons
+    AND id != file_id;
 
-    -- Calculer le nouveau score
     new_score := assign_duplicated_grade(occurrence_count);
 
-    -- Mettre à jour le score de duplication dans la table files
     UPDATE files
     SET duplicated_score = new_score
     WHERE id = file_id;
