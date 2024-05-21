@@ -3,3 +3,5 @@ database/HubDatabase.db-shm
 database/HubDatabase.db-wal
 .idea
 .env
+old_init.sql
+script.sql
