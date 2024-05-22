@@ -380,7 +380,7 @@ BEGIN
     computed_global_score := assign_global_grade(misnamed_grade, perished_grade, duplicated_grade);
 
     UPDATE files
-    SET global_score = global_score
+    SET global_score = computed_global_score
     WHERE id = file_id;
 
     RAISE INFO 'Global score for file "%" with id [%] : %', file_name, file_id, computed_global_score;
