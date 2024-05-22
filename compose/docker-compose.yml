@@ -27,6 +27,7 @@ services:
       - "7003:80"
   hub-postgres:
     image: postgres:latest
+    restart: always
     ports:
       - "5432:5432"
     environment:
