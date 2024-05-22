@@ -144,7 +144,9 @@ DECLARE
     day_duration_limit INT;
     file_path TEXT;
     rule_config JSONB;
+    file_name TEXT;
 BEGIN
+    SELECT name INTO file_name FROM files WHERE id = file_id;
     SELECT rules_config INTO rule_config
     FROM rules
     WHERE name = 'perished';
@@ -173,7 +175,7 @@ BEGIN
         calculated_score := 'F';
     END IF;
 
-    RAISE NOTICE 'File % has perished score: %', file_path, calculated_score;
+    RAISE NOTICE 'File "%" with id [%] has perished score: %', file_name, file_id, calculated_score;
 
     UPDATE files
     SET perished_score = calculated_score
@@ -203,7 +205,9 @@ DECLARE
     new_score CHAR(1);
     max_occurrences INT;
     rule_config JSONB;
+    file_name TEXT;
 BEGIN
+    SELECT name INTO file_name FROM files WHERE id = file_id;
     SELECT rules_config INTO rule_config
     FROM rules
     WHERE name = 'duplicated';
@@ -225,7 +229,7 @@ BEGIN
     SET duplicated_score = new_score
     WHERE id = file_id;
 
-    RAISE NOTICE 'File ID: % has duplicated score: % with % occurrences', file_id, new_score, occurrence_count;
+    RAISE NOTICE 'File : "%" with id [%] has duplicated score: % with % occurrences', file_name, file_id, new_score, occurrence_count;
 END;
 $$;
 
@@ -278,10 +282,10 @@ BEGIN
             rule_weight := (rule_record->'regex_rules'->i->>'weight')::FLOAT;
 
             IF (SELECT regexp_matches(file_name, rule_regex) IS NOT NULL) THEN
-                RAISE INFO 'File : % match the rule : %', file_name, rule_name;
+                RAISE INFO 'File : "%" with id [%] match the rule : %', file_name, file_id, rule_name;
                 res := res + rule_weight;
             ELSE
-                RAISE INFO 'File : % doesn''t match the rule : %', file_name, rule_name;
+                RAISE INFO 'File : "%" with id [%] doesn''t match the rule : %', file_name, file_id, rule_name;
             END IF;
         END LOOP;
 
@@ -291,10 +295,108 @@ BEGIN
 
     UPDATE files SET misnamed_score = misnamed_grade WHERE id = file_id;
 
-    RAISE INFO 'Misnamed grade for file %: %', file_id, misnamed_grade;
+    RAISE INFO 'Misnamed grade for file "%" with id [%]: %', file_name, file_id, misnamed_grade;
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION grade_to_decimal(grade CHAR(1)) RETURNS FLOAT AS $$
+BEGIN
+    CASE grade
+        WHEN 'A' THEN RETURN 0.9;
+        WHEN 'B' THEN RETURN 0.7;
+        WHEN 'C' THEN RETURN 0.5;
+        WHEN 'D' THEN RETURN 0.3;
+        WHEN 'E' THEN RETURN 0.1;
+        ELSE RETURN 0.0;
+    END CASE;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION assign_global_grade(
+    misnamed_grade CHAR(1),
+    perished_grade CHAR(1),
+    duplicated_grade CHAR(1)
+) RETURNS CHAR(1) AS $$
+DECLARE
+    global_grade CHAR(1);
+    decimal_value FLOAT;
+BEGIN
+    IF misnamed_grade = 'N' OR perished_grade = 'N' OR duplicated_grade = 'N' THEN
+        RAISE INFO 'Undefined score N detected, result in N global grade';
+        RETURN 'N';
+    END IF;
+
+    decimal_value := (grade_to_decimal(misnamed_grade) + grade_to_decimal(perished_grade) + grade_to_decimal(duplicated_grade)) / 3;
+
+    IF decimal_value >= 0.0 AND decimal_value < 0.2 THEN
+        global_grade := 'E';
+    ELSIF decimal_value >= 0.2 AND decimal_value < 0.4 THEN
+        global_grade := 'D';
+    ELSIF decimal_value >= 0.4 AND decimal_value < 0.6 THEN
+        global_grade := 'C';
+    ELSIF decimal_value >= 0.6 AND decimal_value < 0.8 THEN
+        global_grade := 'B';
+    ELSE
+        global_grade := 'A';
+    END IF;
+
+    RETURN global_grade;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE PROCEDURE calculate_global_score(file_id INT)
+LANGUAGE plpgsql AS $$
+DECLARE
+    misnamed_grade CHAR(1);
+    perished_grade CHAR(1);
+    duplicated_grade CHAR(1);
+    misnamed_weight FLOAT;
+    perished_weight FLOAT;
+    duplicated_weight FLOAT;
+    computed_global_score CHAR(1);
+    file_name TEXT;
+BEGIN
+    SELECT name INTO file_name FROM files WHERE id = file_id;
+    SELECT misnamed_score, perished_score, duplicated_score
+    INTO misnamed_grade, perished_grade, duplicated_grade
+    FROM files
+    WHERE id = file_id;
+
+    SELECT (rules_config->>'weight')::FLOAT
+    INTO misnamed_weight
+    FROM rules
+    WHERE name = 'misnamed';
+
+    SELECT (rules_config->>'weight')::FLOAT
+    INTO perished_weight
+    FROM rules
+    WHERE name = 'perished';
+
+    SELECT (rules_config->>'weight')::FLOAT
+    INTO duplicated_weight
+    FROM rules
+    WHERE name = 'duplicated';
+
+    computed_global_score := assign_global_grade(misnamed_grade, perished_grade, duplicated_grade);
+
+    UPDATE files
+    SET global_score = global_score
+    WHERE id = file_id;
+
+    RAISE INFO 'Global score for file "%" with id [%] : %', file_name, file_id, computed_global_score;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE calculate_every_global_scores()
+    LANGUAGE plpgsql AS $$
+DECLARE
+    file_record RECORD;
+BEGIN
+    FOR file_record IN SELECT id FROM files LOOP
+            CALL calculate_global_score(file_record.id);
+        END LOOP;
+END;
+$$;
 
 CREATE OR REPLACE PROCEDURE calculate_every_duplicated_scores()
     LANGUAGE plpgsql AS $$
@@ -326,5 +428,15 @@ BEGIN
     FOR file_record IN SELECT id FROM files LOOP
             CALL calculate_misnamed_score(file_record.id);
         END LOOP;
+END;
+$$;
+
+CREATE OR REPLACE PROCEDURE calculate_every_scores()
+    LANGUAGE plpgsql AS $$
+BEGIN
+    CALL calculate_every_perished_scores();
+    CALL calculate_every_misnamed_scores();
+    CALL calculate_every_duplicated_scores();
+    CALL calculate_every_global_scores();
 END;
 $$;
