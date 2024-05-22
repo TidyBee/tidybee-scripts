@@ -16,6 +16,7 @@ services:
     depends_on:
       - hub-auth
       - hub-data-processing
+      - hub-postgres
   hub-auth:
     build:
       context: ./tidybee-hub
@@ -30,8 +31,15 @@ services:
       dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
+  hub-postgres:
+    extends:
+      file: hub-postgres.yml
+      service: hub-postgres
   frontend:
     build:
       context: ./tidybee-frontend
     ports:
       - "8080:80"
+
+volumes:
+  pg_data:
