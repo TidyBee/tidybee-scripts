@@ -106,16 +106,16 @@ VALUES
 -- TEST VALUES SHOULD BE DELETE
 INSERT INTO files (name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score)
 VALUES
-    ('correct_mot1_mot2_2022.txt', 2025, 'ab', NOW(), 'N', 'N', 'N', 'N'),
-    ('only_2words_2023.txt', 2025, 'ab', '2024-02-05', 'N', 'N', 'N', 'N'),
-    ('nounderscore3mot1mot22024.csv', 2025, 'alone', '2023-10-05', 'N', 'N', 'N', 'N'),
-    ('onlyoneword.txt', 2025, 'abcd', '2023-12-05', 'N', 'N', 'N', 'N'),
-    ('nodate_mot1_mot2.txt', 2025, 'abcd', '2024-01-25', 'N', 'N', 'N', 'N'),
-    ('noextension_mot1_mot2_2010', 2025, 'abcd', '2024-05-05', 'N', 'N', 'N', 'N'),
-    ('4words_mot1_mot2_mot3_2013.txt', 2025, 'acd', '2023-02-05', 'N', 'N', 'N', 'N'),
-    ('correct_perished_mot2_2010.txt', 2025, 'acd', '2023-02-05', 'N', 'N', 'N', 'N'),
-    ('bad! ', 2025, 'abcd', '2023-02-05', 'N', 'N', 'N', 'N'),
-    ('special_aze_&ù\_2022.txt', 2025, 'abcd', '2023-02-05', 'N', 'N', 'N', 'N');
+    ('correct_mot1_mot2_2022.txt', 2025, 'ab', NOW(), 'U', 'U', 'U', 'U'),
+    ('only_2words_2023.txt', 2025, 'ab', '2024-02-05', 'U', 'U', 'U', 'U'),
+    ('nounderscore3mot1mot22024.csv', 2025, 'alone', '2023-10-05', 'U', 'U', 'U', 'U'),
+    ('onlyoneword.txt', 2025, 'abcd', '2023-12-05', 'U', 'U', 'U', 'U'),
+    ('nodate_mot1_mot2.txt', 2025, 'abcd', '2024-01-25', 'U', 'U', 'U', 'U'),
+    ('noextension_mot1_mot2_2010', 2025, 'abcd', '2024-05-05', 'U', 'U', 'U', 'U'),
+    ('4words_mot1_mot2_mot3_2013.txt', 2025, 'acd', '2023-02-05', 'U', 'U', 'U', 'U'),
+    ('correct_perished_mot2_2010.txt', 2025, 'acd', '2023-02-05', 'U', 'U', 'U', 'U'),
+    ('bad! ', 2025, 'abcd', '2023-02-05', 'U', 'U', 'U', 'U'),
+    ('special_aze_&ù\_2022.txt', 2025, 'abcd', '2023-02-05', 'U', 'U', 'U', 'U');
 -------------------------------------------------
 
 ALTER TABLE duplicate_associative_table
@@ -321,9 +321,11 @@ DECLARE
     global_grade CHAR(1);
     decimal_value FLOAT;
 BEGIN
-    IF misnamed_grade = 'N' OR perished_grade = 'N' OR duplicated_grade = 'N' THEN
-        RAISE INFO 'Undefined score N detected, result in N global grade';
-        RETURN 'N';
+    IF misnamed_grade NOT IN ('A', 'B', 'C', 'D', 'E') OR
+       perished_grade NOT IN ('A', 'B', 'C', 'D', 'E') OR
+       duplicated_grade NOT IN ('A', 'B', 'C', 'D', 'E') THEN
+        RAISE INFO 'Undefined score U detected, result in U global grade';
+        RETURN 'U';
     END IF;
 
     decimal_value := (grade_to_decimal(misnamed_grade) + grade_to_decimal(perished_grade) + grade_to_decimal(duplicated_grade)) / 3;
