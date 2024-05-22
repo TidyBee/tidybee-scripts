@@ -154,6 +154,7 @@ BEGIN
     BEGIN
         day_duration_limit := (rule_config->>'expiration_days')::INT;
     EXCEPTION WHEN others THEN
+        RAISE WARNING 'Impossible to load day_duration_limit, default to 300 days (10 months)';
         day_duration_limit := 300;
     END;
 
@@ -215,7 +216,8 @@ BEGIN
     BEGIN
         max_occurrences := (rule_config->>'max_occurrences')::INT;
     EXCEPTION WHEN others THEN
-        max_occurrences := 5;
+        RAISE WARNING 'Impossible to load max_occurrences, default to 3';
+        max_occurrences := 3;
     END;
 
     SELECT COUNT(*) INTO occurrence_count
