@@ -53,7 +53,7 @@ VALUES
             },
             {
               "name": "3 words",
-              "description": "Filename must contain 3 words separated by underscore, ex: phone_bill_robert_2024.pdf",
+              "description": "Filename must contain at least 3 words separated by underscore, ex: phone_bill_robert_2024.pdf",
               "regex": "^\\w+_\\w+_\\w+_.+$",
               "weight": 3
             },
@@ -107,11 +107,11 @@ VALUES
 INSERT INTO files (name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score)
 VALUES
     ('correct_mot1_mot2_2022.txt', 2025, 'ab', NOW(), 'N', 'N', 'N', 'N'),
-    ('only_2words_2023.txt', 2025, 'ab', '2023-02-05', 'N', 'N', 'N', 'N'),
-    ('nounderscore3mot1mot22024.csv', 2025, 'alone', '2023-02-05', 'N', 'N', 'N', 'N'),
-    ('onlyoneword.txt', 2025, 'abcd', '2023-02-05', 'N', 'N', 'N', 'N'),
-    ('nodate_mot1_mot2.txt', 2025, 'abcd', '2023-02-05', 'N', 'N', 'N', 'N'),
-    ('noextension_mot1_mot2_2010', 2025, 'abcd', '2023-02-05', 'N', 'N', 'N', 'N'),
+    ('only_2words_2023.txt', 2025, 'ab', '2024-02-05', 'N', 'N', 'N', 'N'),
+    ('nounderscore3mot1mot22024.csv', 2025, 'alone', '2023-10-05', 'N', 'N', 'N', 'N'),
+    ('onlyoneword.txt', 2025, 'abcd', '2023-12-05', 'N', 'N', 'N', 'N'),
+    ('nodate_mot1_mot2.txt', 2025, 'abcd', '2024-01-25', 'N', 'N', 'N', 'N'),
+    ('noextension_mot1_mot2_2010', 2025, 'abcd', '2024-05-05', 'N', 'N', 'N', 'N'),
     ('4words_mot1_mot2_mot3_2013.txt', 2025, 'acd', '2023-02-05', 'N', 'N', 'N', 'N'),
     ('correct_perished_mot2_2010.txt', 2025, 'acd', '2023-02-05', 'N', 'N', 'N', 'N'),
     ('bad! ', 2025, 'abcd', '2023-02-05', 'N', 'N', 'N', 'N'),
@@ -251,7 +251,7 @@ $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE PROCEDURE calculate_misnamed_score(file_id INT)
-    LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql AS $$
 DECLARE
     res FLOAT := 0;
     total_rule_count INT;
@@ -262,6 +262,7 @@ DECLARE
     rule_regex TEXT;
     rule_name TEXT;
     file_name TEXT;
+    sigmoid_value FLOAT;
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
 
@@ -285,7 +286,8 @@ BEGIN
         END LOOP;
 
     tidy_score_decimal := res / total_rule_count;
-    misnamed_grade := assign_misnamed_grade(tidy_score_decimal);
+    sigmoid_value := 1 / (1 + exp(-tidy_score_decimal));
+    misnamed_grade := assign_misnamed_grade(sigmoid_value);
 
     UPDATE files SET misnamed_score = misnamed_grade WHERE id = file_id;
 
@@ -293,13 +295,14 @@ BEGIN
 END;
 $$;
 
+
 CREATE OR REPLACE PROCEDURE calculate_every_duplicated_scores()
     LANGUAGE plpgsql AS $$
 DECLARE
     file_record RECORD;
 BEGIN
     FOR file_record IN SELECT id FROM files LOOP
-            PERFORM calculate_duplicated_score(file_record.id);
+            CALL calculate_duplicated_score(file_record.id);
         END LOOP;
 END;
 $$;
@@ -310,7 +313,7 @@ DECLARE
     file_record RECORD;
 BEGIN
     FOR file_record IN SELECT id FROM files LOOP
-            PERFORM calculate_perished_score(file_record.id);
+            CALL calculate_perished_score(file_record.id);
         END LOOP;
 END;
 $$;
@@ -321,7 +324,7 @@ DECLARE
     file_record RECORD;
 BEGIN
     FOR file_record IN SELECT id FROM files LOOP
-            PERFORM calculate_misnamed_score(file_record.id);
+            CALL calculate_misnamed_score(file_record.id);
         END LOOP;
 END;
 $$;
