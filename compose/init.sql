@@ -295,7 +295,7 @@ BEGIN
     sigmoid_value := 1 / (1 + exp(-tidy_score_decimal));
     computed_misnamed_score := assign_misnamed_score(sigmoid_value);
 
-    UPDATE files SET misnamed_score = misnamed_score WHERE id = file_id;
+    UPDATE files SET misnamed_score = computed_misnamed_score WHERE id = file_id;
 
     RAISE INFO 'Misnamed score for file "%" with id [%]: %', file_name, file_id, computed_misnamed_score;
 END;
