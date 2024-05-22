@@ -255,7 +255,7 @@ $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE PROCEDURE calculate_misnamed_score(file_id INT)
-LANGUAGE plpgsql AS $$
+    LANGUAGE plpgsql AS $$
 DECLARE
     res FLOAT := 0;
     total_rule_count INT;
@@ -308,7 +308,7 @@ BEGIN
         WHEN 'D' THEN RETURN 0.3;
         WHEN 'E' THEN RETURN 0.1;
         ELSE RETURN 0.0;
-    END CASE;
+        END CASE;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -347,7 +347,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE calculate_global_score(file_id INT)
-LANGUAGE plpgsql AS $$
+    LANGUAGE plpgsql AS $$
 DECLARE
     misnamed_grade CHAR(1);
     perished_grade CHAR(1);
