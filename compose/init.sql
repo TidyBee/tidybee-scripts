@@ -361,7 +361,7 @@ DECLARE
     file_name TEXT;
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
-    SELECT loaded_misnamed_score, loaded_perished_score, loaded_duplicated_score
+    SELECT misnamed_score, perished_score, duplicated_score
     INTO loaded_misnamed_score, loaded_perished_score, loaded_duplicated_score
     FROM files
     WHERE id = file_id;
