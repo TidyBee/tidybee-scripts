@@ -34,8 +34,11 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pg_data:/var/lib/postgresql/data
   frontend:
     image: ghcr.io/tidybee/tidybee-frontend:main
     ports:
       - "8080:80"
+
+volumes:
+  pg_data:

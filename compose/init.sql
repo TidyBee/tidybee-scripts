@@ -262,7 +262,7 @@ DECLARE
     res FLOAT := 0;
     total_rule_count INT;
     tidy_score_decimal FLOAT;
-    misnamed_score TEXT;
+    computed_misnamed_score TEXT;
     rule_record JSONB;
     rule_weight FLOAT;
     rule_regex TEXT;
@@ -293,11 +293,11 @@ BEGIN
 
     tidy_score_decimal := res / total_rule_count;
     sigmoid_value := 1 / (1 + exp(-tidy_score_decimal));
-    misnamed_score := assign_misnamed_score(sigmoid_value);
+    computed_misnamed_score := assign_misnamed_score(sigmoid_value);
 
     UPDATE files SET misnamed_score = misnamed_score WHERE id = file_id;
 
-    RAISE INFO 'Misnamed score for file "%" with id [%]: %', file_name, file_id, misnamed_score;
+    RAISE INFO 'Misnamed score for file "%" with id [%]: %', file_name, file_id, computed_misnamed_score;
 END;
 $$;
 
@@ -351,9 +351,9 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE PROCEDURE calculate_global_score(file_id INT)
     LANGUAGE plpgsql AS $$
 DECLARE
-    misnamed_score CHAR(1);
-    perished_score CHAR(1);
-    duplicated_score CHAR(1);
+    loaded_misnamed_score CHAR(1);
+    loaded_perished_score CHAR(1);
+    loaded_duplicated_score CHAR(1);
     misnamed_weight FLOAT;
     perished_weight FLOAT;
     duplicated_weight FLOAT;
@@ -361,8 +361,8 @@ DECLARE
     file_name TEXT;
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
-    SELECT misnamed_score, perished_score, duplicated_score
-    INTO misnamed_score, perished_score, duplicated_score
+    SELECT loaded_misnamed_score, loaded_perished_score, loaded_duplicated_score
+    INTO loaded_misnamed_score, loaded_perished_score, loaded_duplicated_score
     FROM files
     WHERE id = file_id;
 
@@ -381,7 +381,7 @@ BEGIN
     FROM rules
     WHERE name = 'duplicated';
 
-    computed_global_score := assign_global_score(misnamed_score, perished_score, duplicated_score);
+    computed_global_score := assign_global_score(loaded_misnamed_score, loaded_perished_score, loaded_duplicated_score);
 
     UPDATE files
     SET global_score = computed_global_score
