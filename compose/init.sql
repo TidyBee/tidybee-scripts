@@ -323,9 +323,9 @@ DECLARE
     global_score CHAR(1);
     decimal_value FLOAT;
 BEGIN
-    IF misnamed_score NOT IN ('A', 'B', 'C', 'D', 'E') OR
-       perished_score NOT IN ('A', 'B', 'C', 'D', 'E') OR
-       duplicated_score NOT IN ('A', 'B', 'C', 'D', 'E') THEN
+    IF misnamed_score NOT IN ('A', 'B', 'C', 'D', 'E', 'F') OR
+       perished_score NOT IN ('A', 'B', 'C', 'D', 'E', 'F') OR
+       duplicated_score NOT IN ('A', 'B', 'C', 'D', 'E', 'F') THEN
         RAISE INFO 'Undefined score U detected, result in U global score';
         RETURN 'U';
     END IF;
