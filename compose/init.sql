@@ -185,7 +185,7 @@ END;
 $$;
 
 
-CREATE OR REPLACE FUNCTION assign_duplicated_grade(occurrences INT)
+CREATE OR REPLACE FUNCTION assign_duplicated_score(occurrences INT)
     RETURNS CHAR(1) AS $$
 BEGIN
     RETURN CASE
@@ -225,7 +225,7 @@ BEGIN
     WHERE file_hash = (SELECT file_hash FROM files WHERE id = file_id)
       AND id != file_id;
 
-    new_score := assign_duplicated_grade(occurrence_count);
+    new_score := assign_duplicated_score(occurrence_count);
 
     UPDATE files
     SET duplicated_score = new_score
@@ -236,7 +236,7 @@ END;
 $$;
 
 
-CREATE OR REPLACE FUNCTION assign_misnamed_grade(score FLOAT)
+CREATE OR REPLACE FUNCTION assign_misnamed_score(score FLOAT)
     RETURNS TEXT AS $$
 BEGIN
     IF score >= 0.9 THEN
@@ -262,7 +262,7 @@ DECLARE
     res FLOAT := 0;
     total_rule_count INT;
     tidy_score_decimal FLOAT;
-    misnamed_grade TEXT;
+    misnamed_score TEXT;
     rule_record JSONB;
     rule_weight FLOAT;
     rule_regex TEXT;
@@ -293,17 +293,17 @@ BEGIN
 
     tidy_score_decimal := res / total_rule_count;
     sigmoid_value := 1 / (1 + exp(-tidy_score_decimal));
-    misnamed_grade := assign_misnamed_grade(sigmoid_value);
+    misnamed_score := assign_misnamed_score(sigmoid_value);
 
-    UPDATE files SET misnamed_score = misnamed_grade WHERE id = file_id;
+    UPDATE files SET misnamed_score = misnamed_score WHERE id = file_id;
 
-    RAISE INFO 'Misnamed grade for file "%" with id [%]: %', file_name, file_id, misnamed_grade;
+    RAISE INFO 'Misnamed score for file "%" with id [%]: %', file_name, file_id, misnamed_score;
 END;
 $$;
 
-CREATE OR REPLACE FUNCTION grade_to_decimal(grade CHAR(1)) RETURNS FLOAT AS $$
+CREATE OR REPLACE FUNCTION score_to_decimal(score CHAR(1)) RETURNS FLOAT AS $$
 BEGIN
-    CASE grade
+    CASE score
         WHEN 'A' THEN RETURN 0.9;
         WHEN 'B' THEN RETURN 0.7;
         WHEN 'C' THEN RETURN 0.5;
@@ -314,46 +314,46 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION assign_global_grade(
-    misnamed_grade CHAR(1),
-    perished_grade CHAR(1),
-    duplicated_grade CHAR(1)
+CREATE OR REPLACE FUNCTION assign_global_score(
+    misnamed_score CHAR(1),
+    perished_score CHAR(1),
+    duplicated_score CHAR(1)
 ) RETURNS CHAR(1) AS $$
 DECLARE
-    global_grade CHAR(1);
+    global_score CHAR(1);
     decimal_value FLOAT;
 BEGIN
-    IF misnamed_grade NOT IN ('A', 'B', 'C', 'D', 'E') OR
-       perished_grade NOT IN ('A', 'B', 'C', 'D', 'E') OR
-       duplicated_grade NOT IN ('A', 'B', 'C', 'D', 'E') THEN
-        RAISE INFO 'Undefined score U detected, result in U global grade';
+    IF misnamed_score NOT IN ('A', 'B', 'C', 'D', 'E') OR
+       perished_score NOT IN ('A', 'B', 'C', 'D', 'E') OR
+       duplicated_score NOT IN ('A', 'B', 'C', 'D', 'E') THEN
+        RAISE INFO 'Undefined score U detected, result in U global score';
         RETURN 'U';
     END IF;
 
-    decimal_value := (grade_to_decimal(misnamed_grade) + grade_to_decimal(perished_grade) + grade_to_decimal(duplicated_grade)) / 3;
+    decimal_value := (score_to_decimal(misnamed_score) + score_to_decimal(perished_score) + score_to_decimal(duplicated_score)) / 3;
 
     IF decimal_value >= 0.0 AND decimal_value < 0.2 THEN
-        global_grade := 'E';
+        global_score := 'E';
     ELSIF decimal_value >= 0.2 AND decimal_value < 0.4 THEN
-        global_grade := 'D';
+        global_score := 'D';
     ELSIF decimal_value >= 0.4 AND decimal_value < 0.6 THEN
-        global_grade := 'C';
+        global_score := 'C';
     ELSIF decimal_value >= 0.6 AND decimal_value < 0.8 THEN
-        global_grade := 'B';
+        global_score := 'B';
     ELSE
-        global_grade := 'A';
+        global_score := 'A';
     END IF;
 
-    RETURN global_grade;
+    RETURN global_score;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE PROCEDURE calculate_global_score(file_id INT)
     LANGUAGE plpgsql AS $$
 DECLARE
-    misnamed_grade CHAR(1);
-    perished_grade CHAR(1);
-    duplicated_grade CHAR(1);
+    misnamed_score CHAR(1);
+    perished_score CHAR(1);
+    duplicated_score CHAR(1);
     misnamed_weight FLOAT;
     perished_weight FLOAT;
     duplicated_weight FLOAT;
@@ -362,7 +362,7 @@ DECLARE
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
     SELECT misnamed_score, perished_score, duplicated_score
-    INTO misnamed_grade, perished_grade, duplicated_grade
+    INTO misnamed_score, perished_score, duplicated_score
     FROM files
     WHERE id = file_id;
 
@@ -381,7 +381,7 @@ BEGIN
     FROM rules
     WHERE name = 'duplicated';
 
-    computed_global_score := assign_global_grade(misnamed_grade, perished_grade, duplicated_grade);
+    computed_global_score := assign_global_score(misnamed_score, perished_score, duplicated_score);
 
     UPDATE files
     SET global_score = computed_global_score
