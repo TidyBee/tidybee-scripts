@@ -50,3 +50,37 @@ Build, run and stop containers:
 ```
 docker compose -f docker-compose-local.yml <COMMAND> [SERVICE...]
 ```
+
+## DB
+
+This repo also contains postgres DB which is used to store all the files & the rules of Tidybee solution.
+
+
+### Env
+Please fulfill that .env file to try locally
+
+```
+POSTGRES_DB=db
+POSTGRES_USER=user
+POSTGRES_PASSWORD=pass
+```
+
+### Get started
+````bash
+cd ./compose
+docker compose -f hub-postgres.yml up
+````
+
+Connect to db 
+````bash
+psql -h <host> -U <username> -d <db_name>
+````
+
+You can now interact with db and use major procedure stored inside and then watch the computed score for each files
+
+````
+CALL calculate_every_perished_scores();
+CALL calculate_every_misnamed_scores();
+CALL calculate_every_duplicated_scores();
+CALL calculate_every_global_scores();
+````
