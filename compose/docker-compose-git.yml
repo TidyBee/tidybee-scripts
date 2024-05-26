@@ -1,4 +1,3 @@
-version: '3.9'
 services:
   agent:
     build:
@@ -31,6 +30,8 @@ services:
       dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
+    depends_on:
+      - hub-postgres
   hub-postgres:
     extends:
       file: hub-postgres.yml
