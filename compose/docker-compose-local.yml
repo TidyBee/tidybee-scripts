@@ -6,6 +6,8 @@ services:
       - "8111:8111"
     environment:
       - TIDY_ENV=docker
+    depends_on:
+      - hub-tidy-events
   hub-api-gateway:
     build:
       context: ./tidybee-hub
@@ -16,6 +18,7 @@ services:
       - hub-auth
       - hub-data-processing
       - hub-postgres
+      - hub-tidy-events
   hub-auth:
     build:
       context: ./tidybee-hub
@@ -30,6 +33,16 @@ services:
       dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
+  hub-tidy-events:
+    build:
+      context: ./tidybee-hub
+      dockerfile: ./TidyEvents/Dockerfile
+    ports:
+      - "5057:8080"
+    depends_on:
+      hub-postgres:
+        condition: service_healthy
+    restart: on-failure
   hub-postgres:
     extends:
       file: hub-postgres.yml

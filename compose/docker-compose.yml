@@ -24,7 +24,8 @@ services:
     ports:
       - "7003:80"
     depends_on:
-      - hub-postgres
+      hub-postgres:
+        condition: service_healthy
   hub-postgres:
     extends:
       file: hub-postgres.yml
