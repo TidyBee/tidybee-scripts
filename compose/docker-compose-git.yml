@@ -31,7 +31,8 @@ services:
     ports:
       - "7003:80"
     depends_on:
-      - hub-postgres
+      hub-postgres:
+        condition: service_healthy
   hub-tidy-events:
     build:
       context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
