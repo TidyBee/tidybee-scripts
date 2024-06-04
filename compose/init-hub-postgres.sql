@@ -1,33 +1,33 @@
 CREATE TABLE files (
-                       id SERIAL PRIMARY KEY UNIQUE,
-                       name TEXT NOT NULL UNIQUE,
-                       size int NOT NULL,
-                       file_hash TEXT NOT NULL,
-                       last_modified TIMESTAMP NOT NULL,
-                       misnamed_score CHAR(1) NOT NULL,
-                       perished_score CHAR(1) NOT NULL,
-                       duplicated_score CHAR(1) NOT NULL,
-                       global_score CHAR(1) NOT NULL
+    id SERIAL PRIMARY KEY UNIQUE,
+    name TEXT NOT NULL UNIQUE,
+    size int NOT NULL,
+    file_hash TEXT NOT NULL,
+    last_modified TIMESTAMP NOT NULL,
+    misnamed_score CHAR(1) NOT NULL,
+    perished_score CHAR(1) NOT NULL,
+    duplicated_score CHAR(1) NOT NULL,
+    global_score CHAR(1) NOT NULL
 );
 
 CREATE TABLE duplicate_associative_table (
-                                             id SERIAL PRIMARY KEY,
-                                             original_file_id INTEGER NOT NULL,
-                                             duplicate_file_id INTEGER NOT NULL,
-                                             CONSTRAINT fk_original_file
-                                                 FOREIGN KEY (original_file_id)
-                                                     REFERENCES files (id),
-                                             CONSTRAINT fk_duplicate_file
-                                                 FOREIGN KEY (duplicate_file_id)
-                                                     REFERENCES files (id)
+    SERIAL PRIMARY KEY,
+    INTEGER NOT NULL,
+    INTEGER NOT NULL,
+    fk_original_file
+    KEY (original_file_id)
+    files (id),
+    fk_duplicate_file
+    KEY (duplicate_file_id)
+    files (id)
 );
 
 CREATE TABLE rules (
-                       id SERIAL PRIMARY KEY,
-                       name TEXT NOT NULL,
-                       description TEXT,
-                       weight FLOAT NOT NULL,
-                       rules_config JSON NOT NULL
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    description TEXT,
+    weight FLOAT NOT NULL,
+    rules_config JSON NOT NULL
 );
 
 INSERT INTO rules (name, description, weight, rules_config)

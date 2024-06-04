@@ -36,6 +36,7 @@ services:
     depends_on:
       hub-postgres:
         condition: service_healthy
+    restart: on-failure
   hub-tidy-events:
     build:
       context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
