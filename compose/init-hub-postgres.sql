@@ -11,15 +11,15 @@ CREATE TABLE files (
 );
 
 CREATE TABLE duplicate_associative_table (
-    SERIAL PRIMARY KEY,
-    INTEGER NOT NULL,
-    INTEGER NOT NULL,
-    fk_original_file
-    KEY (original_file_id)
-    files (id),
-    fk_duplicate_file
-    KEY (duplicate_file_id)
-    files (id)
+    id SERIAL PRIMARY KEY,
+    original_file_id INTEGER NOT NULL,
+    duplicate_file_id INTEGER NOT NULL,
+    CONSTRAINT fk_original_file
+        FOREIGN KEY (original_file_id)
+            REFERENCES files (id),
+    CONSTRAINT fk_duplicate_file
+        FOREIGN KEY (duplicate_file_id)
+            REFERENCES files (id)
 );
 
 CREATE TABLE rules (
