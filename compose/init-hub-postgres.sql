@@ -1,6 +1,6 @@
 CREATE TABLE files (
-                       id SERIAL PRIMARY KEY,
-                       name TEXT NOT NULL,
+                       id SERIAL PRIMARY KEY UNIQUE,
+                       name TEXT NOT NULL UNIQUE,
                        size int NOT NULL,
                        file_hash TEXT NOT NULL,
                        last_modified TIMESTAMP NOT NULL,
