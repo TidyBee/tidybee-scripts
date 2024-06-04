@@ -16,5 +16,6 @@ services:
       interval: 2s
       timeout: 10s
       retries: 10
+
 volumes:
   pg_data:
