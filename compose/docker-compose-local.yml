@@ -33,6 +33,9 @@ services:
       dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
+    depends_on:
+      hub-postgres:
+        condition: service_healthy
   hub-tidy-events:
     build:
       context: ./tidybee-hub
