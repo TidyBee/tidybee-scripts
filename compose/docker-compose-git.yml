@@ -1,24 +1,27 @@
-version: '3.9'
 services:
   agent:
     build:
-      context: https://github.com/TidyBee/tidybee-agent.git
+      context: https://github.com/TidyBee/tidybee-agent.git#149-design-a-protobuf-file-for-grpc
     ports:
       - "8111:8111"
     environment:
       - TIDY_ENV=docker
+    depends_on:
+      - hub-tidy-events
   hub-api-gateway:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
       dockerfile: ./ApiGateway/Dockerfile
     ports:
       - "7001:80"
     depends_on:
       - hub-auth
       - hub-data-processing
+      - hub-postgres
+      - hub-tidy-events
   hub-auth:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
       dockerfile: ./Auth/Dockerfile
     ports:
       - "7002:80"
@@ -26,12 +29,33 @@ services:
       - ./database:/app/Database
   hub-data-processing:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git
+      context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
       dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
+    depends_on:
+      hub-postgres:
+        condition: service_healthy
+    restart: on-failure
+  hub-tidy-events:
+    build:
+      context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
+      dockerfile: ./TidyEvents/Dockerfile
+    ports:
+      - "5057:8080"
+    depends_on:
+      hub-postgres:
+        condition: service_healthy
+    restart: on-failure
+  hub-postgres:
+    extends:
+      file: hub-postgres.yml
+      service: hub-postgres
   frontend:
     build:
       context: https://github.com/tidybee/tidybee-frontend.git
     ports:
       - "8080:80"
+
+volumes:
+  pg_data:

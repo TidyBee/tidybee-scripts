@@ -1,0 +1,21 @@
+services:
+  hub-postgres:
+    image: postgres:16.3-alpine3.19
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./init-hub-postgres.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test:  ["CMD-SHELL", "pg_isready -h localhost -d ${POSTGRES_DB} -U ${POSTGRES_USER}"]
+      interval: 2s
+      timeout: 10s
+      retries: 10
+
+volumes:
+  pg_data:
