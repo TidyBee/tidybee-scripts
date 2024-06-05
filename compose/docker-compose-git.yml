@@ -1,7 +1,7 @@
 services:
   agent:
     build:
-      context: https://github.com/TidyBee/tidybee-agent.git#149-design-a-protobuf-file-for-grpc
+      context: https://github.com/TidyBee/tidybee-agent.git#dev
     ports:
       - "8111:8111"
     environment:
