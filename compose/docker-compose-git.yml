@@ -10,7 +10,7 @@ services:
       - hub-tidy-events
   hub-api-gateway:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
+      context: https://github.com/tidybee/tidybee-hub.git
       dockerfile: ./ApiGateway/Dockerfile
     ports:
       - "7001:80"
@@ -21,7 +21,7 @@ services:
       - hub-tidy-events
   hub-auth:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
+      context: https://github.com/tidybee/tidybee-hub.git
       dockerfile: ./Auth/Dockerfile
     ports:
       - "7002:80"
@@ -29,7 +29,7 @@ services:
       - ./database:/app/Database
   hub-data-processing:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
+      context: https://github.com/tidybee/tidybee-hub.git
       dockerfile: ./DataProcessing/Dockerfile
     ports:
       - "7003:80"
@@ -39,7 +39,7 @@ services:
     restart: on-failure
   hub-tidy-events:
     build:
-      context: https://github.com/tidybee/tidybee-hub.git#Tidy-Events-Grpc-Base-Implem
+      context: https://github.com/tidybee/tidybee-hub.git
       dockerfile: ./TidyEvents/Dockerfile
     ports:
       - "5057:8080"
