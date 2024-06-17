@@ -33,7 +33,7 @@ CREATE TABLE rules (
 INSERT INTO rules (name, description, weight, rules_config)
 VALUES
     (
-        'Mal nommé',
+        'misnamed',
         'Le fichier est définit comme mal nommé si il ne respecte pas les exigences de la règle Mal nommé',
         3.0,
         '{
@@ -82,7 +82,7 @@ VALUES
 
 INSERT INTO rules (name, description, weight, rules_config)
 VALUES
-    ('Perimé',
+    ('perished',
      'Un fichier non modifié depuis un temps donné est considéré comme périmé',
      2.0,
      '{
@@ -93,7 +93,7 @@ VALUES
 
 INSERT INTO rules (name, description, weight, rules_config)
 VALUES
-    ('Dupliqué',
+    ('duplicated',
      'Le fichier est considéré comme dupliqué si il apparait trop de fois sur le système',
      1.5,
      '{
@@ -353,17 +353,17 @@ BEGIN
     SELECT (rules_config->>'weight')::FLOAT
     INTO misnamed_weight
     FROM rules
-    WHERE name = 'Mal nommé';
+    WHERE name = 'misnamed';
 
     SELECT (rules_config->>'weight')::FLOAT
     INTO perished_weight
     FROM rules
-    WHERE name = 'Perimé';
+    WHERE name = 'perished';
 
     SELECT (rules_config->>'weight')::FLOAT
     INTO duplicated_weight
     FROM rules
-    WHERE name = 'Dupliqué';
+    WHERE name = 'duplicated';
 
     computed_global_score := assign_global_score(loaded_misnamed_score, loaded_perished_score, loaded_duplicated_score);
 
