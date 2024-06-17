@@ -41,37 +41,37 @@ VALUES
           "regex_rules": [
             {
               "name": "Date",
-              "description": "Le nom fichier doit obligatoirement une date avec le format ..._aaaa, ex facture_bill_robert_2024.pdf",
+              "description": "Le nom fichier doit obligatoirement contenir une date avec le format ..._aaaa, ex facture_bill_robert_2024.pdf",
               "regex": "_[0-9]{4}\\.",
               "weight": 3
             },
             {
               "name": "Séparateur",
-              "description": "Le nom de fichier doit contenir au moins trois séparateur underscore entre chaque mots, ex : facture_bill_robert_2024.pdf",
+              "description": "Le nom de fichier doit contenir au moins trois séparateurs underscore entre chaque mot, ex : facture_bill_robert_2024.pdf",
               "regex": "^[^_]*(_[^_]*){3}$",
               "weight": 1.8
             },
             {
               "name": "Trois mots",
-              "description": "Le nom de fichier doit contenir au moins trois mots explicatif pour définir au mieux le fichier, ex: facture_bill_robert_2024.pdf",
+              "description": "Le nom de fichier doit contenir au moins trois mots explicites pour définir au mieux le fichier, ex: facture_bill_robert_2024.pdf",
               "regex": "^\\w+_\\w+_\\w+_.+$",
               "weight": 3
             },
             {
               "name": "Extension",
-              "description": "Le nom de fichier doit contenir une extension comme par exemple .pdf",
+              "description": "Le nom de fichier doit obligatoirement contenir une extension comme par exemple .pdf",
               "regex": "\\.\\w+$",
               "weight": 2.5
             },
             {
-              "name": "Aucun caractère invisible",
+              "name": "Caractères invisibles",
               "description": "Les espaces et autres caractères invisibles sont prohibés",
               "regex": "^\\S+$",
               "weight": 2
             },
             {
               "name": "Caractères spéciaux",
-              "description": "Les caractères spéciaux ne sont prohibés",
+              "description": "Les caractères spéciaux sont prohibés",
               "regex": "^[A-Za-z0-9._]*$",
               "weight": 2
             }
