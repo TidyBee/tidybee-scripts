@@ -33,45 +33,45 @@ CREATE TABLE rules (
 INSERT INTO rules (name, description, weight, rules_config)
 VALUES
     (
-        'misnamed',
-        'Filename must follow specific naming conventions',
+        'Mal nommé',
+        'Le fichier est définit comme mal nommé si il ne respecte pas les exigences de la règle Mal nommé',
         3.0,
         '{
           "type": "misnamed",
           "regex_rules": [
             {
               "name": "Date",
-              "description": "Filename must contain a date with format ..._yyyy, ex: phone_bill_robert_2024.pdf",
+              "description": "Le nom fichier doit obligatoirement contenir une date avec le format ..._aaaa, ex facture_bill_robert_2024.pdf",
               "regex": "_[0-9]{4}\\.",
               "weight": 3
             },
             {
-              "name": "4 separator",
-              "description": "Filename must have 4 separators which are underscore only, ex: phone_bill_robert_2024.pdf",
+              "name": "Séparateur",
+              "description": "Le nom de fichier doit contenir au moins trois séparateurs underscore entre chaque mot, ex : facture_bill_robert_2024.pdf",
               "regex": "^[^_]*(_[^_]*){3}$",
               "weight": 1.8
             },
             {
-              "name": "3 words",
-              "description": "Filename must contain at least 3 words separated by underscore, ex: phone_bill_robert_2024.pdf",
+              "name": "Trois mots",
+              "description": "Le nom de fichier doit contenir au moins trois mots explicites pour définir au mieux le fichier, ex: facture_bill_robert_2024.pdf",
               "regex": "^\\w+_\\w+_\\w+_.+$",
               "weight": 3
             },
             {
               "name": "Extension",
-              "description": "Filename must contain an extension, ex: phone_bill_robert_2024.pdf",
+              "description": "Le nom de fichier doit obligatoirement contenir une extension comme par exemple .pdf",
               "regex": "\\.\\w+$",
               "weight": 2.5
             },
             {
-              "name": "White Space",
-              "description": "Don''t accept white spaces",
+              "name": "Caractères invisibles",
+              "description": "Les espaces et autres caractères invisibles sont prohibés",
               "regex": "^\\S+$",
               "weight": 2
             },
             {
-              "name": "Unauthorized Char",
-              "description": "Don''t accept special characters",
+              "name": "Caractères spéciaux",
+              "description": "Les caractères spéciaux sont prohibés",
               "regex": "^[A-Za-z0-9._]*$",
               "weight": 2
             }
@@ -82,8 +82,8 @@ VALUES
 
 INSERT INTO rules (name, description, weight, rules_config)
 VALUES
-    ('perished',
-     'File is considered perished if it has not been modified for a certain period',
+    ('Perimé',
+     'Un fichier non modifié depuis un temps donné est considéré comme périmé',
      2.0,
      '{
        "type": "perished",
@@ -93,30 +93,14 @@ VALUES
 
 INSERT INTO rules (name, description, weight, rules_config)
 VALUES
-    ('duplicated',
-     'File is considered duplicated if it appears too many times in the system',
+    ('Dupliqué',
+     'Le fichier est considéré comme dupliqué si il apparait trop de fois sur le système',
      1.5,
      '{
        "type": "duplicated",
        "max_occurrences": 3
      }'
     );
-
-
--- TEST VALUES SHOULD BE DELETE
-INSERT INTO files (name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score)
-VALUES
-    ('correct_mot1_mot2_2022.txt', 2025, 'ab', NOW(), 'U', 'U', 'U', 'U'),
-    ('only_2words_2023.txt', 2025, 'ab', '2024-02-05', 'U', 'U', 'U', 'U'),
-    ('nounderscore3mot1mot22024.csv', 2025, 'alone', '2023-10-05', 'U', 'U', 'U', 'U'),
-    ('onlyoneword.txt', 2025, 'abcd', '2023-12-05', 'U', 'U', 'U', 'U'),
-    ('nodate_mot1_mot2.txt', 2025, 'abcd', '2024-01-25', 'U', 'U', 'U', 'U'),
-    ('noextension_mot1_mot2_2010', 2025, 'abcd', '2024-05-05', 'U', 'U', 'U', 'U'),
-    ('4words_mot1_mot2_mot3_2013.txt', 2025, 'acd', '2023-02-05', 'U', 'U', 'U', 'U'),
-    ('correct_perished_mot2_2010.txt', 2025, 'acd', '2023-02-05', 'U', 'U', 'U', 'U'),
-    ('bad! ', 2025, 'abcd', '2023-02-05', 'U', 'U', 'U', 'U'),
-    ('special_aze_&ù\_2022.txt', 2025, 'abcd', '2023-02-05', 'U', 'U', 'U', 'U');
--------------------------------------------------
 
 ALTER TABLE duplicate_associative_table
     ADD CONSTRAINT unique_file_pair UNIQUE (original_file_id, duplicate_file_id);
@@ -149,7 +133,7 @@ BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
     SELECT rules_config INTO rule_config
     FROM rules
-    WHERE name = 'perished';
+    WHERE name = 'Perimé';
 
     BEGIN
         day_duration_limit := (rule_config->>'expiration_days')::INT;
@@ -211,7 +195,7 @@ BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
     SELECT rules_config INTO rule_config
     FROM rules
-    WHERE name = 'duplicated';
+    WHERE name = 'Dupliqué';
 
     BEGIN
         max_occurrences := (rule_config->>'max_occurrences')::INT;
@@ -272,7 +256,7 @@ DECLARE
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
 
-    SELECT rules_config INTO rule_record FROM rules WHERE name = 'misnamed';
+    SELECT rules_config INTO rule_record FROM rules WHERE name = 'Mal nommé';
 
     total_rule_count := jsonb_array_length(rule_record->'regex_rules');
 
@@ -369,17 +353,17 @@ BEGIN
     SELECT (rules_config->>'weight')::FLOAT
     INTO misnamed_weight
     FROM rules
-    WHERE name = 'misnamed';
+    WHERE name = 'Mal nommé';
 
     SELECT (rules_config->>'weight')::FLOAT
     INTO perished_weight
     FROM rules
-    WHERE name = 'perished';
+    WHERE name = 'Perimé';
 
     SELECT (rules_config->>'weight')::FLOAT
     INTO duplicated_weight
     FROM rules
-    WHERE name = 'duplicated';
+    WHERE name = 'Dupliqué';
 
     computed_global_score := assign_global_score(loaded_misnamed_score, loaded_perished_score, loaded_duplicated_score);
 
