@@ -83,7 +83,7 @@ VALUES
 INSERT INTO rules (name, description, weight, rules_config)
 VALUES
     ('Perimé',
-     'Un fichier non modifié depuis un temps donné est considérer comme périmé',
+     'Un fichier non modifié depuis un temps donné est considéré comme périmé',
      2.0,
      '{
        "type": "perished",
