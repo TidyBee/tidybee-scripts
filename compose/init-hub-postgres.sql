@@ -133,7 +133,7 @@ BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
     SELECT rules_config INTO rule_config
     FROM rules
-    WHERE name = 'Perimé';
+    WHERE name = 'perished';
 
     BEGIN
         day_duration_limit := (rule_config->>'expiration_days')::INT;
@@ -195,7 +195,7 @@ BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
     SELECT rules_config INTO rule_config
     FROM rules
-    WHERE name = 'Dupliqué';
+    WHERE name = 'duplicated';
 
     BEGIN
         max_occurrences := (rule_config->>'max_occurrences')::INT;
@@ -256,7 +256,7 @@ DECLARE
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
 
-    SELECT rules_config INTO rule_record FROM rules WHERE name = 'Mal nommé';
+    SELECT rules_config INTO rule_record FROM rules WHERE name = 'misnamed';
 
     total_rule_count := jsonb_array_length(rule_record->'regex_rules');
 
