@@ -1,2 +1,4 @@
 .idea
 sqltest
+compose/script.sql
+compose/debug_init.sql
