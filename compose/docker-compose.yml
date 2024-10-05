@@ -7,6 +7,8 @@ services:
       - TIDY_ENV=docker
     depends_on:
       - hub-tidy-events
+    volumes:
+      - ./test_folder:/app/tests/assets/test_folder
   hub-api-gateway:
     image: ghcr.io/tidybee/tidybee-hub-api-gateway:main
     ports:
@@ -38,6 +40,8 @@ services:
       hub-postgres:
         condition: service_healthy
     restart: on-failure
+    volumes:
+      - ./gcloud_service_account_keys.json:/app/gcloud_service_account_keys.json
   hub-postgres:
     extends:
       file: hub-postgres.yml
@@ -46,6 +50,22 @@ services:
     image: ghcr.io/tidybee/tidybee-frontend:main
     ports:
       - "8080:80"
+    depends_on:
+      - grpc-web-proxy
+  
+  grpc-web-proxy:
+    build:
+      context: ./grpc-web-proxy  # Path to the directory containing the Dockerfile
+    container_name: grpc-web-proxy
+    command:
+      - --backend_addr=hub-tidy-events:5057  # Point to your gRPC backend
+      - --run_tls_server=false
+      - --allow_all_origins
+      - --server_http_debug_port=8081
+    ports:
+      - "8081:8081"  # Exposing the gRPC-Web proxy on port 8081
+    depends_on:
+      - hub-tidy-events
 
 volumes:
   pg_data:
