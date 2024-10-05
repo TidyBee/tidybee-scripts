@@ -68,7 +68,7 @@ services:
       context: ./grpc-web-proxy  # Path to the directory containing the Dockerfile
     container_name: grpc-web-proxy
     command:
-      - --backend_addr=hub-tidy-events:5057  # Point to your gRPC backend
+      - --backend_addr=hub-tidy-events:8080  # Point to your gRPC backend
       - --run_tls_server=false
       - --allow_all_origins
       - --server_http_debug_port=8081
