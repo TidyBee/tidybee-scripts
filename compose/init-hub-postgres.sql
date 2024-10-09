@@ -1,4 +1,6 @@
-CREATE TABLE files (
+CREATE EXTENSION IF NOT EXISTS pg_cron;
+
+CREATE TABLE IF NOT EXISTS files (
     id SERIAL PRIMARY KEY UNIQUE,
     name TEXT NOT NULL UNIQUE,
     size int NOT NULL,
@@ -10,7 +12,7 @@ CREATE TABLE files (
     global_score CHAR(1) NOT NULL
 );
 
-CREATE TABLE duplicate_associative_table (
+CREATE TABLE IF NOT EXISTS duplicate_associative_table (
     id SERIAL PRIMARY KEY,
     original_file_id INTEGER NOT NULL,
     duplicate_file_id INTEGER NOT NULL,
@@ -28,6 +30,26 @@ CREATE TABLE rules (
     description TEXT,
     weight FLOAT NOT NULL,
     rules_config JSON NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS backup_files (
+    id SERIAL PRIMARY KEY UNIQUE,
+    name TEXT NOT NULL UNIQUE,
+    size int NOT NULL,
+    file_hash TEXT NOT NULL,
+    last_modified TIMESTAMP NOT NULL,
+    misnamed_score CHAR(1) NOT NULL,
+    perished_score CHAR(1) NOT NULL,
+    duplicated_score CHAR(1) NOT NULL,
+    global_score CHAR(1) NOT NULL,
+    backup_date TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS backup_duplicate_associative_table (
+    id SERIAL PRIMARY KEY,
+    original_file_id INTEGER NOT NULL,
+    duplicate_file_id INTEGER NOT NULL,
+    backup_date TIMESTAMP DEFAULT NOW()
 );
 
 INSERT INTO rules (name, description, weight, rules_config)
@@ -428,3 +450,20 @@ BEGIN
     CALL calculate_every_global_scores();
 END;
 $$;
+
+CREATE OR REPLACE PROCEDURE backup_tables()
+LANGUAGE plpgsql AS $$
+DECLARE
+    current_timestamp TIMESTAMP := NOW();
+BEGIN
+    INSERT INTO backup_files (name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score, backup_date)
+    SELECT name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score, current_timestamp
+    FROM files;
+
+    INSERT INTO backup_duplicate_associative_table (original_file_id, duplicate_file_id, backup_date)
+    SELECT original_file_id, duplicate_file_id, current_timestamp
+    FROM duplicate_associative_table;
+END;
+$$;
+
+SELECT cron.schedule('daily_files_backup', '0 0 * * *', 'CALL backup_tables();');
