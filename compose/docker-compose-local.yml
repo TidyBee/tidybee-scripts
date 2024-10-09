@@ -65,7 +65,7 @@ services:
   
   grpc-web-proxy:
     build:
-      context: ./grpc-web-proxy  # Path to the directory containing the Dockerfile
+      context: ./tidybee-scripts/compose/grpc-web-proxy  # Path to the directory containing the Dockerfile
     container_name: grpc-web-proxy
     command:
       - --backend_addr=hub-tidy-events:8080  # Point to your gRPC backend
