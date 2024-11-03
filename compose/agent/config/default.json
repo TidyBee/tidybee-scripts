@@ -1,0 +1,33 @@
+{
+  "agent_data": {
+    "latest_version": "0.1.0",
+    "minimal_version": "0.1.0"
+  },
+  "logger_config": {
+    "term_level": "debug",
+    "file_level": "warn"
+  },
+  "server_config": {
+    "log_level": "info",
+    "address": "0.0.0.0:8111"
+  },
+  "hub_config": {
+    "host": "localhost",
+    "port": "7001",
+    "protocol": "http",
+    "auth_path": "/gateway/auth/AOTH",
+    "disconnect_path": "/gateway/auth/AOTH/{agent_id}/disconnect",
+    "connection_attempt_limit": "30",
+    "grpc_server": {
+      "host": "localhost",
+      "port": 5057,
+      "protocol": "http",
+      "log_level": "info"
+    }
+  },
+  "filesystem_interface_config": {
+    "dir": [
+      "tests/assets/test_folder"
+    ]
+  }
+}
