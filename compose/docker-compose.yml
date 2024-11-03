@@ -8,7 +8,8 @@ services:
     depends_on:
       - hub-tidy-events
     volumes:
-      - ./test_folder:/app/tests/assets/test_folder
+      - ./agent/test_data:/app/tests/assets/test_folder
+      - ./agent/config:/app/config
   hub-api-gateway:
     image: ghcr.io/tidybee/tidybee-hub-api-gateway:main
     ports:
