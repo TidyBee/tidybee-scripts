@@ -2,7 +2,7 @@
 
 ## compose
 
-Then, choose one of the 3 solutions below to run the containers.
+Choose one of the 3 solutions below to run the containers (depending on your configurations, you may need to run docker with the root permissions).
 
 ### Run containers from GHCR (recommended)
 
