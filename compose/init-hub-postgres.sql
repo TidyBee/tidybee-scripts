@@ -1,36 +1,53 @@
 CREATE TABLE files (
-    id SERIAL PRIMARY KEY UNIQUE,
-    name TEXT NOT NULL UNIQUE,
-    size int NOT NULL,
-    file_hash TEXT NOT NULL,
-    last_modified TIMESTAMP NOT NULL,
-    misnamed_score CHAR(1) NOT NULL,
-    perished_score CHAR(1) NOT NULL,
-    duplicated_score CHAR(1) NOT NULL,
-    global_score CHAR(1) NOT NULL
+                       id SERIAL PRIMARY KEY UNIQUE,
+                       name TEXT NOT NULL UNIQUE,
+                       size int NOT NULL,
+                       file_hash TEXT NOT NULL,
+                       last_modified TIMESTAMP NOT NULL,
+                       misnamed_score CHAR(1) NOT NULL,
+                       perished_score CHAR(1) NOT NULL,
+                       duplicated_score CHAR(1) NOT NULL,
+                       global_score CHAR(1) NOT NULL
+
 );
 
+-- -- Add files into files table
+-- INSERT INTO files (name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score)
+-- VALUES
+--     ('correct_mot1_mot2_2022.txt', 2025, 'ab', '2024-03-05', 'u', 'u', 'u', 'u'),
+--     ('only_2words_2023.txt', 2025, 'ab', '2024-02-05', 'u', 'u', 'u', 'u'),
+--     ('nounderscore3mot1mot22024.csv', 2025, 'abcd', '2023-12-05', 'u', 'u', 'u', 'u'),
+--     ('onlyoneword.txt', 2025, 'abcd', '2023-10-05', 'u', 'u', 'u', 'u'),
+--     ('nodate_mot1_mot2.txt', 2025, 'abcd', '2023-08-05', 'u', 'u', 'u', 'u'),
+--     ('noextension_mot1_mot2_2010', 2025, 'abcd', '2023-06-05', 'u', 'u', 'u', 'u'),
+--     ('4words_mot1_mot2_mot3_2013.txt', 2025, 'acd', '2023-04-05', 'u', 'u', 'u', 'u'),
+--     ('correct_perished_mot2_2010.txt', 2025, 'acd', '2023-02-05', 'u', 'u', 'u', 'u'),
+--     ('Contract_Jean_Paul_2023.pdf', 2025, 'abcd', '2023-02-05', 'u', 'u', 'u', 'u'),
+--     ('executif_else_document_2020.docx', 2025, 'abcd', '2023-02-05', 'u', 'u', 'u', 'u'),
+--     ('special_aze_&ù\_2022.txt', 2025, 'abcd', '2022-12-05', 'u', 'u', 'u', 'u');
+
 CREATE TABLE duplicate_associative_table (
-    id SERIAL PRIMARY KEY,
-    original_file_id INTEGER NOT NULL,
-    duplicate_file_id INTEGER NOT NULL,
-    CONSTRAINT fk_original_file
-        FOREIGN KEY (original_file_id)
-            REFERENCES files (id),
-    CONSTRAINT fk_duplicate_file
-        FOREIGN KEY (duplicate_file_id)
-            REFERENCES files (id)
+                                             id SERIAL PRIMARY KEY,
+                                             original_file_id INTEGER NOT NULL,
+                                             duplicate_file_id INTEGER NOT NULL,
+                                             CONSTRAINT fk_original_file
+                                                 FOREIGN KEY (original_file_id)
+                                                     REFERENCES files (id),
+                                             CONSTRAINT fk_duplicate_file
+                                                 FOREIGN KEY (duplicate_file_id)
+                                                     REFERENCES files (id)
 );
 
 CREATE TABLE rules (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    weight FLOAT NOT NULL,
-    rules_config JSON NOT NULL
+                       id SERIAL PRIMARY KEY,
+                       name TEXT NOT NULL,
+                       description TEXT,
+                       weight FLOAT NOT NULL,
+                       severity CHAR(1) NOT NULL,
+                       rules_config JSON NOT NULL
 );
 
-INSERT INTO rules (name, description, weight, rules_config)
+INSERT INTO rules (name, description, weight, rules_config, severity)
 VALUES
     (
         'misnamed',
@@ -76,11 +93,12 @@ VALUES
               "weight": 2
             }
           ]
-        }'
+        }',
+        'H'
     );
 
 
-INSERT INTO rules (name, description, weight, rules_config)
+INSERT INTO rules (name, description, weight, rules_config, severity)
 VALUES
     ('perished',
      'Un fichier non modifié depuis un temps donné est considéré comme périmé',
@@ -88,10 +106,11 @@ VALUES
      '{
        "type": "perished",
        "expiration_days": 300
-     }'
+     }',
+     'M'
     );
 
-INSERT INTO rules (name, description, weight, rules_config)
+INSERT INTO rules (name, description, weight, rules_config, severity)
 VALUES
     ('duplicated',
      'Le fichier est considéré comme dupliqué si il apparait trop de fois sur le système',
@@ -99,7 +118,8 @@ VALUES
      '{
        "type": "duplicated",
        "max_occurrences": 3
-     }'
+     }',
+     'M'
     );
 
 ALTER TABLE duplicate_associative_table
@@ -223,15 +243,16 @@ $$;
 CREATE OR REPLACE FUNCTION assign_misnamed_score(score FLOAT)
     RETURNS TEXT AS $$
 BEGIN
-    IF score >= 0.9 THEN
+    RAISE NOTICE 'Entrée score: %', score;
+    IF score >= 0.8 THEN
         RETURN 'A';
-    ELSIF score >= 0.8 THEN
-        RETURN 'B';
     ELSIF score >= 0.7 THEN
-        RETURN 'C';
+        RETURN 'B';
     ELSIF score >= 0.6 THEN
-        RETURN 'D';
+        RETURN 'C';
     ELSIF score >= 0.5 THEN
+        RETURN 'D';
+    ELSIF score >= 0.4 THEN
         RETURN 'E';
     ELSE
         RETURN 'F';
@@ -253,12 +274,14 @@ DECLARE
     rule_name TEXT;
     file_name TEXT;
     sigmoid_value FLOAT;
+    severity CHAR(1);
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
 
     SELECT rules_config INTO rule_record FROM rules WHERE name = 'misnamed';
 
     total_rule_count := jsonb_array_length(rule_record->'regex_rules');
+    severity := rule_record->>'severity';
 
     RAISE INFO 'Applying MISNAMED Rules...';
 
@@ -269,7 +292,13 @@ BEGIN
 
             IF (SELECT regexp_matches(file_name, rule_regex) IS NOT NULL) THEN
                 RAISE INFO 'File : "%" with id [%] match the rule : %', file_name, file_id, rule_name;
-                res := res + rule_weight;
+                IF severity = 'H' THEN
+                    res := res + (rule_weight * 1.5);
+                ELSIF severity = 'M' THEN
+                    res := res + rule_weight;
+                ELSE
+                    res := res + (rule_weight * 0.75);
+                END IF;
             ELSE
                 RAISE INFO 'File : "%" with id [%] doesn''t match the rule : %', file_name, file_id, rule_name;
             END IF;
@@ -288,7 +317,7 @@ $$;
 CREATE OR REPLACE FUNCTION score_to_decimal(score CHAR(1)) RETURNS FLOAT AS $$
 BEGIN
     CASE score
-        WHEN 'A' THEN RETURN 0.9;
+        WHEN 'A' THEN RETURN 0.8;
         WHEN 'B' THEN RETURN 0.7;
         WHEN 'C' THEN RETURN 0.5;
         WHEN 'D' THEN RETURN 0.3;
