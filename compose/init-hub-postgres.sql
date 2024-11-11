@@ -52,6 +52,16 @@ CREATE TABLE IF NOT EXISTS backup_duplicate_associative_table (
     backup_date TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS backup_average_scores (
+    id SERIAL PRIMARY KEY,
+    backup_date TIMESTAMP NOT NULL,
+    avg_misnamed_score FLOAT NOT NULL,
+    avg_perished_score FLOAT NOT NULL,
+    avg_duplicated_score FLOAT NOT NULL,
+    avg_global_score FLOAT NOT NULL,
+    total_files INT NOT NULL
+);
+
 INSERT INTO rules (name, description, weight, rules_config)
 VALUES
     (
@@ -455,6 +465,11 @@ CREATE OR REPLACE PROCEDURE backup_tables()
 LANGUAGE plpgsql AS $$
 DECLARE
     current_timestamp TIMESTAMP := NOW();
+    avg_misnamed FLOAT;
+    avg_perished FLOAT;
+    avg_duplicated FLOAT;
+    avg_global FLOAT;
+    file_count INT;
 BEGIN
     INSERT INTO backup_files (name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score, backup_date)
     SELECT name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score, current_timestamp
@@ -463,6 +478,41 @@ BEGIN
     INSERT INTO backup_duplicate_associative_table (original_file_id, duplicate_file_id, backup_date)
     SELECT original_file_id, duplicate_file_id, current_timestamp
     FROM duplicate_associative_table;
+
+    SELECT 
+        COUNT(*),
+        AVG(score_to_decimal(misnamed_score)),
+        AVG(score_to_decimal(perished_score)),
+        AVG(score_to_decimal(duplicated_score)),
+        AVG(score_to_decimal(global_score))
+    INTO 
+        file_count,
+        avg_misnamed,
+        avg_perished,
+        avg_duplicated,
+        avg_global
+    FROM files
+    WHERE 
+        misnamed_score != 'U' AND
+        perished_score != 'U' AND
+        duplicated_score != 'U' AND
+        global_score != 'U';
+
+    INSERT INTO backup_average_scores (
+        backup_date,
+        avg_misnamed_score,
+        avg_perished_score,
+        avg_duplicated_score,
+        avg_global_score,
+        total_files
+    ) VALUES (
+        current_timestamp,
+        COALESCE(avg_misnamed, 0),
+        COALESCE(avg_perished, 0),
+        COALESCE(avg_duplicated, 0),
+        COALESCE(avg_global, 0),
+        file_count
+    );
 END;
 $$;
 
