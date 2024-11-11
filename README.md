@@ -2,17 +2,7 @@
 
 ## compose
 
-### PostgreSQL database setup
-
-The `hub-postgres` service needs some variables do get running, copy the template env file and edit it:
-
-```
-git clone git@github.com:tidybee/tidybee-scripts.git
-cd tidybee-scripts/compose
-cp .env.template .env
-```
-
-Then, choose one of the 3 solutions below to run the containers.
+Choose one of the 3 solutions below to run the containers (depending on your configurations, you may need to run docker with the root permissions).
 
 ### Run containers from GHCR (recommended)
 

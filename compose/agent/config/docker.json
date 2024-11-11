@@ -1,0 +1,16 @@
+{
+  "hub_config": {
+    "host": "hub-api-gateway",
+    "port": "80",
+    "protocol": "http",
+    "auth_path": "/gateway/auth/AOTH",
+    "disconnect_path": "/gateway/auth/AOTH/{agent_id}/disconnect",
+    "connection_attempt_limit": "30",
+    "grpc_server": {
+      "host": "hub-tidy-events",
+      "port": 8080,
+      "protocol": "http",
+      "log_level": "INFO"
+    }
+  }
+}
