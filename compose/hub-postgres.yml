@@ -1,6 +1,7 @@
 services:
   hub-postgres:
-    image: postgres:16.3-alpine3.19
+    build:
+      context: ./hub-postgres
     restart: always
     ports:
       - "5432:5432"
@@ -8,6 +9,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      # prerequisites: https://github.com/citusdata/pg_cron?tab=readme-ov-file#setting-up-pg_cron
+      POSTGRES_INITDB_ARGS: "-c shared_preload_libraries=pg_cron -c cron.database_name=db"
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./init-hub-postgres.sql:/docker-entrypoint-initdb.d/init.sql
