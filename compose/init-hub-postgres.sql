@@ -479,20 +479,20 @@ BEGIN
     SELECT original_file_id, duplicate_file_id, current_timestamp
     FROM duplicate_associative_table;
 
-    SELECT 
+    SELECT
         COUNT(*),
         AVG(score_to_decimal(misnamed_score)),
         AVG(score_to_decimal(perished_score)),
         AVG(score_to_decimal(duplicated_score)),
         AVG(score_to_decimal(global_score))
-    INTO 
+    INTO
         file_count,
         avg_misnamed,
         avg_perished,
         avg_duplicated,
         avg_global
     FROM files
-    WHERE 
+    WHERE
         misnamed_score != 'U' AND
         perished_score != 'U' AND
         duplicated_score != 'U' AND
