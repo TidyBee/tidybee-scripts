@@ -24,36 +24,6 @@ CREATE TABLE IF NOT EXISTS duplicate_associative_table (
                                                                    REFERENCES files (id)
 );
 
-CREATE TABLE IF NOT EXISTS backup_files (
-                                            id SERIAL PRIMARY KEY UNIQUE,
-                                            name TEXT NOT NULL UNIQUE,
-                                            size int NOT NULL,
-                                            file_hash TEXT NOT NULL,
-                                            last_modified TIMESTAMP NOT NULL,
-                                            misnamed_score CHAR(1) NOT NULL,
-                                            perished_score CHAR(1) NOT NULL,
-                                            duplicated_score CHAR(1) NOT NULL,
-                                            global_score CHAR(1) NOT NULL,
-                                            backup_date TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS backup_duplicate_associative_table (
-                                                                  id SERIAL PRIMARY KEY,
-                                                                  original_file_id INTEGER NOT NULL,
-                                                                  duplicate_file_id INTEGER NOT NULL,
-                                                                  backup_date TIMESTAMP DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS backup_average_scores (
-                                                     id SERIAL PRIMARY KEY,
-                                                     backup_date TIMESTAMP NOT NULL,
-                                                     avg_misnamed_score FLOAT NOT NULL,
-                                                     avg_perished_score FLOAT NOT NULL,
-                                                     avg_duplicated_score FLOAT NOT NULL,
-                                                     avg_global_score FLOAT NOT NULL,
-                                                     total_files INT NOT NULL
-);
-
 CREATE TABLE rules (
                        id SERIAL PRIMARY KEY,
                        name TEXT NOT NULL,
@@ -130,6 +100,35 @@ INSERT INTO rule_sub_rule (rule_id, sub_rule_id, severity) VALUES
                                                                (3, 7, 'H'),
                                                                (3, 8, 'M'),
                                                                (3, 9, 'L');
+CREATE TABLE IF NOT EXISTS backup_files (
+                                            id SERIAL PRIMARY KEY UNIQUE,
+                                            name TEXT NOT NULL UNIQUE,
+                                            size int NOT NULL,
+                                            file_hash TEXT NOT NULL,
+                                            last_modified TIMESTAMP NOT NULL,
+                                            misnamed_score CHAR(1) NOT NULL,
+                                            perished_score CHAR(1) NOT NULL,
+                                            duplicated_score CHAR(1) NOT NULL,
+                                            global_score CHAR(1) NOT NULL,
+                                            backup_date TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS backup_duplicate_associative_table (
+                                                                  id SERIAL PRIMARY KEY,
+                                                                  original_file_id INTEGER NOT NULL,
+                                                                  duplicate_file_id INTEGER NOT NULL,
+                                                                  backup_date TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS backup_average_scores (
+                                                     id SERIAL PRIMARY KEY,
+                                                     backup_date TIMESTAMP NOT NULL,
+                                                     avg_misnamed_score FLOAT NOT NULL,
+                                                     avg_perished_score FLOAT NOT NULL,
+                                                     avg_duplicated_score FLOAT NOT NULL,
+                                                     avg_global_score FLOAT NOT NULL,
+                                                     total_files INT NOT NULL
+);
 
 CREATE OR REPLACE FUNCTION update_rule_severity(rule_name TEXT, new_severity CHAR)
     RETURNS TABLE (
@@ -214,6 +213,7 @@ BEGIN
 END;
 $$;
 
+
 CREATE OR REPLACE FUNCTION assign_duplicated_score(occurrences INT)
     RETURNS CHAR(1) AS $$
 BEGIN
@@ -269,6 +269,7 @@ BEGIN
 END;
 $$;
 
+
 CREATE OR REPLACE FUNCTION assign_misnamed_score(score FLOAT)
     RETURNS TEXT AS $$
 BEGIN
@@ -288,11 +289,11 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+
 CREATE OR REPLACE PROCEDURE calculate_misnamed_score(file_id INT)
     LANGUAGE plpgsql AS $$
 DECLARE
     res FLOAT := 0;
-    total_rule_count INT;
     tidy_score_decimal FLOAT;
     computed_misnamed_score TEXT;
     rule_name TEXT;
@@ -329,7 +330,6 @@ BEGIN
     tidy_score_decimal := res / (SELECT COUNT(*) FROM rule_sub_rule WHERE rule_id = 1 AND severity = current_severity);
 
     sigmoid_value := 1 / (1 + exp(-tidy_score_decimal));
-
     computed_misnamed_score := assign_misnamed_score(sigmoid_value);
 
     UPDATE files SET misnamed_score = computed_misnamed_score WHERE id = file_id;
