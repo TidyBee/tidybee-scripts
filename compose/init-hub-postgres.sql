@@ -1,65 +1,65 @@
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
 CREATE TABLE IF NOT EXISTS files (
-    id SERIAL PRIMARY KEY UNIQUE,
-    name TEXT NOT NULL UNIQUE,
-    size int NOT NULL,
-    file_hash TEXT NOT NULL,
-    last_modified TIMESTAMP NOT NULL,
-    misnamed_score CHAR(1) NOT NULL,
-    perished_score CHAR(1) NOT NULL,
-    duplicated_score CHAR(1) NOT NULL,
-    global_score CHAR(1) NOT NULL
+                                     id SERIAL PRIMARY KEY UNIQUE,
+                                     name TEXT NOT NULL UNIQUE,
+                                     size int NOT NULL,
+                                     file_hash TEXT NOT NULL,
+                                     last_modified TIMESTAMP NOT NULL,
+                                     misnamed_score CHAR(1) NOT NULL,
+                                     perished_score CHAR(1) NOT NULL,
+                                     duplicated_score CHAR(1) NOT NULL,
+                                     global_score CHAR(1) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS duplicate_associative_table (
-    id SERIAL PRIMARY KEY,
-    original_file_id INTEGER NOT NULL,
-    duplicate_file_id INTEGER NOT NULL,
-    CONSTRAINT fk_original_file
-        FOREIGN KEY (original_file_id)
-            REFERENCES files (id),
-    CONSTRAINT fk_duplicate_file
-        FOREIGN KEY (duplicate_file_id)
-            REFERENCES files (id)
+                                                           id SERIAL PRIMARY KEY,
+                                                           original_file_id INTEGER NOT NULL,
+                                                           duplicate_file_id INTEGER NOT NULL,
+                                                           CONSTRAINT fk_original_file
+                                                               FOREIGN KEY (original_file_id)
+                                                                   REFERENCES files (id),
+                                                           CONSTRAINT fk_duplicate_file
+                                                               FOREIGN KEY (duplicate_file_id)
+                                                                   REFERENCES files (id)
 );
 
 CREATE TABLE rules (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    description TEXT,
-    weight FLOAT NOT NULL,
-    rules_config JSON NOT NULL
+                       id SERIAL PRIMARY KEY,
+                       name TEXT NOT NULL,
+                       description TEXT,
+                       weight FLOAT NOT NULL,
+                       rules_config JSON NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS backup_files (
-    id SERIAL PRIMARY KEY UNIQUE,
-    name TEXT NOT NULL UNIQUE,
-    size int NOT NULL,
-    file_hash TEXT NOT NULL,
-    last_modified TIMESTAMP NOT NULL,
-    misnamed_score CHAR(1) NOT NULL,
-    perished_score CHAR(1) NOT NULL,
-    duplicated_score CHAR(1) NOT NULL,
-    global_score CHAR(1) NOT NULL,
-    backup_date TIMESTAMP DEFAULT NOW()
+                                            id SERIAL PRIMARY KEY UNIQUE,
+                                            name TEXT NOT NULL UNIQUE,
+                                            size int NOT NULL,
+                                            file_hash TEXT NOT NULL,
+                                            last_modified TIMESTAMP NOT NULL,
+                                            misnamed_score CHAR(1) NOT NULL,
+                                            perished_score CHAR(1) NOT NULL,
+                                            duplicated_score CHAR(1) NOT NULL,
+                                            global_score CHAR(1) NOT NULL,
+                                            backup_date TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS backup_duplicate_associative_table (
-    id SERIAL PRIMARY KEY,
-    original_file_id INTEGER NOT NULL,
-    duplicate_file_id INTEGER NOT NULL,
-    backup_date TIMESTAMP DEFAULT NOW()
+                                                                  id SERIAL PRIMARY KEY,
+                                                                  original_file_id INTEGER NOT NULL,
+                                                                  duplicate_file_id INTEGER NOT NULL,
+                                                                  backup_date TIMESTAMP DEFAULT NOW()
 );
 
 CREATE TABLE IF NOT EXISTS backup_average_scores (
-    id SERIAL PRIMARY KEY,
-    backup_date TIMESTAMP NOT NULL,
-    avg_misnamed_score FLOAT NOT NULL,
-    avg_perished_score FLOAT NOT NULL,
-    avg_duplicated_score FLOAT NOT NULL,
-    avg_global_score FLOAT NOT NULL,
-    total_files INT NOT NULL
+                                                     id SERIAL PRIMARY KEY,
+                                                     backup_date TIMESTAMP NOT NULL,
+                                                     avg_misnamed_score FLOAT NOT NULL,
+                                                     avg_perished_score FLOAT NOT NULL,
+                                                     avg_duplicated_score FLOAT NOT NULL,
+                                                     avg_global_score FLOAT NOT NULL,
+                                                     total_files INT NOT NULL
 );
 
 INSERT INTO rules (name, description, weight, rules_config)
@@ -462,7 +462,7 @@ END;
 $$;
 
 CREATE OR REPLACE PROCEDURE backup_tables()
-LANGUAGE plpgsql AS $$
+    LANGUAGE plpgsql AS $$
 DECLARE
     current_timestamp TIMESTAMP := NOW();
     avg_misnamed FLOAT;
@@ -506,13 +506,13 @@ BEGIN
         avg_global_score,
         total_files
     ) VALUES (
-        current_timestamp,
-        COALESCE(avg_misnamed, 0),
-        COALESCE(avg_perished, 0),
-        COALESCE(avg_duplicated, 0),
-        COALESCE(avg_global, 0),
-        file_count
-    );
+                         current_timestamp,
+                         COALESCE(avg_misnamed, 0),
+                         COALESCE(avg_perished, 0),
+                         COALESCE(avg_duplicated, 0),
+                         COALESCE(avg_global, 0),
+                         file_count
+             );
 END;
 $$;
 
