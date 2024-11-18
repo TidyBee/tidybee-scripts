@@ -38,9 +38,9 @@ CREATE TABLE sub_rules (
 );
 
 CREATE TABLE sub_rules_associative_table (
-                               rule_id INT REFERENCES rules(id),
-                               sub_rule_id INT REFERENCES sub_rules(id),
-                               severity CHAR(1) NOT NULL
+                                             rule_id INT REFERENCES rules(id),
+                                             sub_rule_id INT REFERENCES sub_rules(id),
+                                             severity CHAR(1) NOT NULL
 );
 
 INSERT INTO rules (name, weight, severity) VALUES
@@ -67,6 +67,24 @@ INSERT INTO sub_rules (type, rules_config) VALUES
                                                  "regex": "^\\w+_\\w+_\\w+_.+$",
                                                  "weight": 3
                                                }'),
+                                               ('misnamed', '{
+                                                 "name": "Extension",
+                                                 "description": "Le nom de fichier doit obligatoirement contenir une extension comme par exemple .pdf",
+                                                 "regex": "\\.\\w+$",
+                                                 "weight": 2.5
+                                               }'),
+                                               ('misnamed', '{
+                                                 "name": "Caractères invisibles",
+                                                 "description": "Les espaces et autres caractères invisibles sont prohibés",
+                                                 "regex": "^\\S+$",
+                                                 "weight": 2
+                                               }'),
+                                               ('misnamed', '{
+                                                 "name": "Caractères spéciaux",
+                                                 "description": "Les caractères spéciaux sont prohibés",
+                                                 "regex": "^[A-Za-z0-9._]*$",
+                                                 "weight": 2
+                                               }'),
                                                ('duplicated', '{
                                                  "max_occurrences": 3
                                                }'),
@@ -87,19 +105,24 @@ INSERT INTO sub_rules (type, rules_config) VALUES
                                                }');
 
 INSERT INTO sub_rules_associative_table (rule_id, sub_rule_id, severity) VALUES
-                                                               (1, 1, 'H'),
-                                                               (1, 2, 'H'),
-                                                               (1, 3, 'H'),
-                                                               (1, 1, 'M'),
-                                                               (1, 2, 'M'),
-                                                               (1, 3, 'M'),
-                                                               (1, 1, 'L'),
-                                                               (2, 4, 'H'),
-                                                               (2, 5, 'M'),
-                                                               (2, 6, 'L'),
-                                                               (3, 7, 'H'),
-                                                               (3, 8, 'M'),
-                                                               (3, 9, 'L');
+                                                                             (1, 1, 'H'),
+                                                                             (1, 2, 'H'),
+                                                                             (1, 3, 'H'),
+                                                                             (1, 4, 'H'),
+                                                                             (1, 5, 'H'),
+                                                                             (1, 6, 'H'),
+                                                                             (1, 3, 'M'),
+                                                                             (1, 4, 'M'),
+                                                                             (1, 5, 'M'),
+                                                                             (1, 6, 'M'),
+                                                                             (1, 5, 'L'),
+                                                                             (1, 6, 'L'),
+                                                                             (2, 7, 'L'),
+                                                                             (2, 8, 'M'),
+                                                                             (2, 9, 'H'),
+                                                                             (3, 10, 'L'),
+                                                                             (3, 11, 'M'),
+                                                                             (3, 12, 'H');
 CREATE TABLE IF NOT EXISTS backup_files (
                                             id SERIAL PRIMARY KEY UNIQUE,
                                             name TEXT NOT NULL UNIQUE,
