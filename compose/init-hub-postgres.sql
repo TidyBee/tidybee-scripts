@@ -37,10 +37,10 @@ CREATE TABLE sub_rules (
                            rules_config JSONB NOT NULL
 );
 
-CREATE TABLE rule_sub_rule (
+CREATE TABLE sub_rules_associative_table (
                                rule_id INT REFERENCES rules(id),
                                sub_rule_id INT REFERENCES sub_rules(id),
-                               severity CHAR(1) NOT NULL       -- Sévérité associée à cette sous-règle dans cette règle (H, M, L),
+                               severity CHAR(1) NOT NULL
 );
 
 INSERT INTO rules (name, weight, severity) VALUES
@@ -86,7 +86,7 @@ INSERT INTO sub_rules (type, rules_config) VALUES
                                                  "expiration_days": 50
                                                }');
 
-INSERT INTO rule_sub_rule (rule_id, sub_rule_id, severity) VALUES
+INSERT INTO sub_rules_associative_table (rule_id, sub_rule_id, severity) VALUES
                                                                (1, 1, 'H'),
                                                                (1, 2, 'H'),
                                                                (1, 3, 'H'),
@@ -144,7 +144,7 @@ BEGIN
     RETURN QUERY
         SELECT sr.id, sr.type, sr.rules_config
         FROM sub_rules sr
-                 JOIN rule_sub_rule rsr ON sr.id = rsr.sub_rule_id
+                 JOIN sub_rules_associative_table rsr ON sr.id = rsr.sub_rule_id
                  JOIN rules r ON r.id = rsr.rule_id
         WHERE r.name = rule_name AND rsr.severity = new_severity;
 END;
@@ -183,9 +183,9 @@ BEGIN
     SELECT (rules_config->>'expiration_days')::INT
     INTO day_duration_limit
     FROM sub_rules
-             JOIN rule_sub_rule ON sub_rules.id = rule_sub_rule.sub_rule_id
-    WHERE rule_sub_rule.rule_id = (SELECT id FROM rules WHERE name = 'perished')
-      AND rule_sub_rule.severity = calculated_score;
+             JOIN sub_rules_associative_table ON sub_rules.id = sub_rules_associative_table.sub_rule_id
+    WHERE sub_rules_associative_table.rule_id = (SELECT id FROM rules WHERE name = 'perished')
+      AND sub_rules_associative_table.severity = calculated_score;
 
     SELECT name, NOW() - last_modified INTO file_name, res
     FROM files
@@ -245,9 +245,9 @@ BEGIN
 
     SELECT (rules_config->>'max_occurrences')::INT INTO max_occurrences
     FROM sub_rules
-             JOIN rule_sub_rule ON sub_rules.id = rule_sub_rule.sub_rule_id
-    WHERE rule_sub_rule.rule_id = (SELECT id FROM rules WHERE name = 'duplicated')
-      AND rule_sub_rule.severity = current_severity;
+             JOIN sub_rules_associative_table ON sub_rules.id = sub_rules_associative_table.sub_rule_id
+    WHERE sub_rules_associative_table.rule_id = (SELECT id FROM rules WHERE name = 'duplicated')
+      AND sub_rules_associative_table.severity = current_severity;
 
     IF max_occurrences IS NULL THEN
         RAISE WARNING 'Impossible de charger max_occurrences, valeur par défaut : 3';
@@ -306,13 +306,13 @@ DECLARE
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
 
-    SELECT severity INTO current_severity FROM rules WHERE name = 'misnamed' AND id = 1;  -- Id de la règle misnamed
+    SELECT severity INTO current_severity FROM rules WHERE name = 'misnamed' AND id = 1;
 
     FOR rule_record IN
         SELECT sr.rules_config
-        FROM rule_sub_rule rsr
+        FROM sub_rules_associative_table rsr
                  JOIN sub_rules sr ON rsr.sub_rule_id = sr.id
-        WHERE rsr.rule_id = 1  -- Id de la règle misnamed
+        WHERE rsr.rule_id = 1
           AND rsr.severity = current_severity
         LOOP
             rule_name := rule_record->>'name';
@@ -321,13 +321,13 @@ BEGIN
 
             IF (SELECT regexp_matches(file_name, rule_regex) IS NOT NULL) THEN
                 RAISE INFO 'File : "%" with id [%] matches the rule : %', file_name, file_id, rule_name;
-                res := res + rule_weight;  -- Ajouter le poids de la règle si elle est respectée
+                res := res + rule_weight;
             ELSE
                 RAISE INFO 'File : "%" with id [%] doesn''t match the rule : %', file_name, file_id, rule_name;
             END IF;
         END LOOP;
 
-    tidy_score_decimal := res / (SELECT COUNT(*) FROM rule_sub_rule WHERE rule_id = 1 AND severity = current_severity);
+    tidy_score_decimal := res / (SELECT COUNT(*) FROM sub_rules_associative_table WHERE rule_id = 1 AND severity = current_severity);
 
     sigmoid_value := 1 / (1 + exp(-tidy_score_decimal));
     computed_misnamed_score := assign_misnamed_score(sigmoid_value);
