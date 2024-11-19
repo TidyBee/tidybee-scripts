@@ -1,41 +1,27 @@
-CREATE TABLE files (
-                       id SERIAL PRIMARY KEY UNIQUE,
-                       name TEXT NOT NULL UNIQUE,
-                       size int NOT NULL,
-                       file_hash TEXT NOT NULL,
-                       last_modified TIMESTAMP NOT NULL,
-                       misnamed_score CHAR(1) NOT NULL,
-                       perished_score CHAR(1) NOT NULL,
-                       duplicated_score CHAR(1) NOT NULL,
-                       global_score CHAR(1) NOT NULL
+CREATE EXTENSION IF NOT EXISTS pg_cron;
 
+CREATE TABLE IF NOT EXISTS files (
+                                     id SERIAL PRIMARY KEY UNIQUE,
+                                     name TEXT NOT NULL UNIQUE,
+                                     size int NOT NULL,
+                                     file_hash TEXT NOT NULL,
+                                     last_modified TIMESTAMP NOT NULL,
+                                     misnamed_score CHAR(1) NOT NULL,
+                                     perished_score CHAR(1) NOT NULL,
+                                     duplicated_score CHAR(1) NOT NULL,
+                                     global_score CHAR(1) NOT NULL
 );
 
--- -- Add files into files table
--- INSERT INTO files (name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score)
--- VALUES
---     ('correct_mot1_mot2_2022.txt', 2025, 'ab', '2024-03-05', 'u', 'u', 'u', 'u'),
---     ('only_2words_2023.txt', 2025, 'ab', '2024-02-05', 'u', 'u', 'u', 'u'),
---     ('nounderscore3mot1mot22024.csv', 2025, 'abcd', '2023-12-05', 'u', 'u', 'u', 'u'),
---     ('onlyoneword.txt', 2025, 'abcd', '2023-10-05', 'u', 'u', 'u', 'u'),
---     ('nodate_mot1_mot2.txt', 2025, 'abcd', '2023-08-05', 'u', 'u', 'u', 'u'),
---     ('noextension_mot1_mot2_2010', 2025, 'abcd', '2023-06-05', 'u', 'u', 'u', 'u'),
---     ('4words_mot1_mot2_mot3_2013.txt', 2025, 'acd', '2023-04-05', 'u', 'u', 'u', 'u'),
---     ('correct_perished_mot2_2010.txt', 2025, 'acd', '2023-02-05', 'u', 'u', 'u', 'u'),
---     ('Contract_Jean_Paul_2023.pdf', 2025, 'abcd', '2023-02-05', 'u', 'u', 'u', 'u'),
---     ('executif_else_document_2020.docx', 2025, 'abcd', '2023-02-05', 'u', 'u', 'u', 'u'),
---     ('special_aze_&ù\_2022.txt', 2025, 'abcd', '2022-12-05', 'u', 'u', 'u', 'u');
-
-CREATE TABLE duplicate_associative_table (
-                                             id SERIAL PRIMARY KEY,
-                                             original_file_id INTEGER NOT NULL,
-                                             duplicate_file_id INTEGER NOT NULL,
-                                             CONSTRAINT fk_original_file
-                                                 FOREIGN KEY (original_file_id)
-                                                     REFERENCES files (id),
-                                             CONSTRAINT fk_duplicate_file
-                                                 FOREIGN KEY (duplicate_file_id)
-                                                     REFERENCES files (id)
+CREATE TABLE IF NOT EXISTS duplicate_associative_table (
+                                                           id SERIAL PRIMARY KEY,
+                                                           original_file_id INTEGER NOT NULL,
+                                                           duplicate_file_id INTEGER NOT NULL,
+                                                           CONSTRAINT fk_original_file
+                                                               FOREIGN KEY (original_file_id)
+                                                                   REFERENCES files (id),
+                                                           CONSTRAINT fk_duplicate_file
+                                                               FOREIGN KEY (duplicate_file_id)
+                                                                   REFERENCES files (id)
 );
 
 CREATE TABLE rules (
@@ -43,11 +29,40 @@ CREATE TABLE rules (
                        name TEXT NOT NULL,
                        description TEXT,
                        weight FLOAT NOT NULL,
-                       severity CHAR(1) NOT NULL,
                        rules_config JSON NOT NULL
 );
 
-INSERT INTO rules (name, description, weight, rules_config, severity)
+CREATE TABLE IF NOT EXISTS backup_files (
+                                            id SERIAL PRIMARY KEY UNIQUE,
+                                            name TEXT NOT NULL UNIQUE,
+                                            size int NOT NULL,
+                                            file_hash TEXT NOT NULL,
+                                            last_modified TIMESTAMP NOT NULL,
+                                            misnamed_score CHAR(1) NOT NULL,
+                                            perished_score CHAR(1) NOT NULL,
+                                            duplicated_score CHAR(1) NOT NULL,
+                                            global_score CHAR(1) NOT NULL,
+                                            backup_date TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS backup_duplicate_associative_table (
+                                                                  id SERIAL PRIMARY KEY,
+                                                                  original_file_id INTEGER NOT NULL,
+                                                                  duplicate_file_id INTEGER NOT NULL,
+                                                                  backup_date TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS backup_average_scores (
+                                                     id SERIAL PRIMARY KEY,
+                                                     backup_date TIMESTAMP NOT NULL,
+                                                     avg_misnamed_score FLOAT NOT NULL,
+                                                     avg_perished_score FLOAT NOT NULL,
+                                                     avg_duplicated_score FLOAT NOT NULL,
+                                                     avg_global_score FLOAT NOT NULL,
+                                                     total_files INT NOT NULL
+);
+
+INSERT INTO rules (name, description, weight, rules_config)
 VALUES
     (
         'misnamed',
@@ -93,12 +108,11 @@ VALUES
               "weight": 2
             }
           ]
-        }',
-        'H'
+        }'
     );
 
 
-INSERT INTO rules (name, description, weight, rules_config, severity)
+INSERT INTO rules (name, description, weight, rules_config)
 VALUES
     ('perished',
      'Un fichier non modifié depuis un temps donné est considéré comme périmé',
@@ -106,11 +120,10 @@ VALUES
      '{
        "type": "perished",
        "expiration_days": 300
-     }',
-     'M'
+     }'
     );
 
-INSERT INTO rules (name, description, weight, rules_config, severity)
+INSERT INTO rules (name, description, weight, rules_config)
 VALUES
     ('duplicated',
      'Le fichier est considéré comme dupliqué si il apparait trop de fois sur le système',
@@ -118,8 +131,7 @@ VALUES
      '{
        "type": "duplicated",
        "max_occurrences": 3
-     }',
-     'M'
+     }'
     );
 
 ALTER TABLE duplicate_associative_table
@@ -243,16 +255,15 @@ $$;
 CREATE OR REPLACE FUNCTION assign_misnamed_score(score FLOAT)
     RETURNS TEXT AS $$
 BEGIN
-    RAISE NOTICE 'Entrée score: %', score;
-    IF score >= 0.8 THEN
+    IF score >= 0.9 THEN
         RETURN 'A';
-    ELSIF score >= 0.7 THEN
+    ELSIF score >= 0.8 THEN
         RETURN 'B';
-    ELSIF score >= 0.6 THEN
+    ELSIF score >= 0.7 THEN
         RETURN 'C';
-    ELSIF score >= 0.5 THEN
+    ELSIF score >= 0.6 THEN
         RETURN 'D';
-    ELSIF score >= 0.4 THEN
+    ELSIF score >= 0.5 THEN
         RETURN 'E';
     ELSE
         RETURN 'F';
@@ -274,14 +285,12 @@ DECLARE
     rule_name TEXT;
     file_name TEXT;
     sigmoid_value FLOAT;
-    severity CHAR(1);
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
 
     SELECT rules_config INTO rule_record FROM rules WHERE name = 'misnamed';
 
     total_rule_count := jsonb_array_length(rule_record->'regex_rules');
-    severity := rule_record->>'severity';
 
     RAISE INFO 'Applying MISNAMED Rules...';
 
@@ -292,13 +301,7 @@ BEGIN
 
             IF (SELECT regexp_matches(file_name, rule_regex) IS NOT NULL) THEN
                 RAISE INFO 'File : "%" with id [%] match the rule : %', file_name, file_id, rule_name;
-                IF severity = 'H' THEN
-                    res := res + (rule_weight * 1.5);
-                ELSIF severity = 'M' THEN
-                    res := res + rule_weight;
-                ELSE
-                    res := res + (rule_weight * 0.75);
-                END IF;
+                res := res + rule_weight;
             ELSE
                 RAISE INFO 'File : "%" with id [%] doesn''t match the rule : %', file_name, file_id, rule_name;
             END IF;
@@ -317,7 +320,7 @@ $$;
 CREATE OR REPLACE FUNCTION score_to_decimal(score CHAR(1)) RETURNS FLOAT AS $$
 BEGIN
     CASE score
-        WHEN 'A' THEN RETURN 0.8;
+        WHEN 'A' THEN RETURN 0.9;
         WHEN 'B' THEN RETURN 0.7;
         WHEN 'C' THEN RETURN 0.5;
         WHEN 'D' THEN RETURN 0.3;
@@ -457,3 +460,60 @@ BEGIN
     CALL calculate_every_global_scores();
 END;
 $$;
+
+CREATE OR REPLACE PROCEDURE backup_tables()
+    LANGUAGE plpgsql AS $$
+DECLARE
+    current_timestamp TIMESTAMP := NOW();
+    avg_misnamed FLOAT;
+    avg_perished FLOAT;
+    avg_duplicated FLOAT;
+    avg_global FLOAT;
+    file_count INT;
+BEGIN
+    INSERT INTO backup_files (name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score, backup_date)
+    SELECT name, size, file_hash, last_modified, misnamed_score, perished_score, duplicated_score, global_score, current_timestamp
+    FROM files;
+
+    INSERT INTO backup_duplicate_associative_table (original_file_id, duplicate_file_id, backup_date)
+    SELECT original_file_id, duplicate_file_id, current_timestamp
+    FROM duplicate_associative_table;
+
+    SELECT
+        COUNT(*),
+        AVG(score_to_decimal(misnamed_score)),
+        AVG(score_to_decimal(perished_score)),
+        AVG(score_to_decimal(duplicated_score)),
+        AVG(score_to_decimal(global_score))
+    INTO
+        file_count,
+        avg_misnamed,
+        avg_perished,
+        avg_duplicated,
+        avg_global
+    FROM files
+    WHERE
+        misnamed_score != 'U' AND
+        perished_score != 'U' AND
+        duplicated_score != 'U' AND
+        global_score != 'U';
+
+    INSERT INTO backup_average_scores (
+        backup_date,
+        avg_misnamed_score,
+        avg_perished_score,
+        avg_duplicated_score,
+        avg_global_score,
+        total_files
+    ) VALUES (
+                         current_timestamp,
+                         COALESCE(avg_misnamed, 0),
+                         COALESCE(avg_perished, 0),
+                         COALESCE(avg_duplicated, 0),
+                         COALESCE(avg_global, 0),
+                         file_count
+             );
+END;
+$$;
+
+SELECT cron.schedule('daily_files_backup', '0 0 * * *', 'CALL backup_tables();');
