@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS files (
                                      misnamed_score CHAR(1) NOT NULL,
                                      perished_score CHAR(1) NOT NULL,
                                      duplicated_score CHAR(1) NOT NULL,
-                                     global_score CHAR(1) NOT NULL
+                                     global_score CHAR(1) NOT NULL,
+                                     provenance TEXT NOT NULL DEFAULT 'agent'
 );
 
 CREATE TABLE IF NOT EXISTS duplicate_associative_table (
@@ -123,18 +124,7 @@ INSERT INTO sub_rules_associative_table (rule_id, sub_rule_id, severity) VALUES
                                                                              (3, 10, 'L'),
                                                                              (3, 11, 'M'),
                                                                              (3, 12, 'H');
-CREATE TABLE IF NOT EXISTS backup_files (
-                                            id SERIAL PRIMARY KEY UNIQUE,
-                                            name TEXT NOT NULL UNIQUE,
-                                            size int NOT NULL,
-                                            file_hash TEXT NOT NULL,
-                                            last_modified TIMESTAMP NOT NULL,
-                                            misnamed_score CHAR(1) NOT NULL,
-                                            perished_score CHAR(1) NOT NULL,
-                                            duplicated_score CHAR(1) NOT NULL,
-                                            global_score CHAR(1) NOT NULL,
-                                            backup_date TIMESTAMP DEFAULT NOW()
-);
+
 CREATE TABLE IF NOT EXISTS backup_files (
                                             id SERIAL PRIMARY KEY UNIQUE,
                                             name TEXT NOT NULL UNIQUE,
