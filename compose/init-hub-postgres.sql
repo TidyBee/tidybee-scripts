@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS files (
                                      misnamed_score CHAR(1) NOT NULL,
                                      perished_score CHAR(1) NOT NULL,
                                      duplicated_score CHAR(1) NOT NULL,
-                                     global_score CHAR(1) NOT NULL
+                                     global_score CHAR(1) NOT NULL,
+                                     provenance TEXT NOT NULL DEFAULT 'agent'
 );
 
 CREATE TABLE IF NOT EXISTS duplicate_associative_table (
@@ -27,10 +28,102 @@ CREATE TABLE IF NOT EXISTS duplicate_associative_table (
 CREATE TABLE rules (
                        id SERIAL PRIMARY KEY,
                        name TEXT NOT NULL,
-                       description TEXT,
                        weight FLOAT NOT NULL,
-                       rules_config JSON NOT NULL
+                       severity CHAR(1) NOT NULL
 );
+
+CREATE TABLE sub_rules (
+                           id SERIAL PRIMARY KEY,
+                           type TEXT NOT NULL,
+                           rules_config JSONB NOT NULL
+);
+
+CREATE TABLE sub_rules_associative_table (
+                                             rule_id INT REFERENCES rules(id),
+                                             sub_rule_id INT REFERENCES sub_rules(id),
+                                             severity CHAR(1) NOT NULL
+);
+
+INSERT INTO rules (name, weight, severity) VALUES
+                                               ('misnamed', 3.0, 'M'),
+                                               ('duplicated', 2.0, 'M'),
+                                               ('perished', 1.5, 'M');
+
+INSERT INTO sub_rules (type, rules_config) VALUES
+                                               ('misnamed', '{
+                                                 "name": "Date",
+                                                 "description": "Le nom fichier doit obligatoirement contenir une date avec le format ..._aaaa, ex facture_bill_robert_2024.pdf",
+                                                 "regex": "_[0-9]{4}\\.",
+                                                 "weight": 3
+                                               }'),
+                                               ('misnamed', '{
+                                                 "name": "Séparateur",
+                                                 "description": "Le nom de fichier doit contenir au moins trois séparateurs underscore entre chaque mot, ex : facture_bill_robert_2024.pdf",
+                                                 "regex": "^[^_]*(_[^_]*){3}$",
+                                                 "weight": 1.8
+                                               }'),
+                                               ('misnamed', '{
+                                                 "name": "Trois mots",
+                                                 "description": "Le nom de fichier doit contenir au moins trois mots explicites pour définir au mieux le fichier, ex: facture_bill_robert_2024.pdf",
+                                                 "regex": "^\\w+_\\w+_\\w+_.+$",
+                                                 "weight": 3
+                                               }'),
+                                               ('misnamed', '{
+                                                 "name": "Extension",
+                                                 "description": "Le nom de fichier doit obligatoirement contenir une extension comme par exemple .pdf",
+                                                 "regex": "\\.\\w+$",
+                                                 "weight": 2.5
+                                               }'),
+                                               ('misnamed', '{
+                                                 "name": "Caractères invisibles",
+                                                 "description": "Les espaces et autres caractères invisibles sont prohibés",
+                                                 "regex": "^\\S+$",
+                                                 "weight": 2
+                                               }'),
+                                               ('misnamed', '{
+                                                 "name": "Caractères spéciaux",
+                                                 "description": "Les caractères spéciaux sont prohibés",
+                                                 "regex": "^[A-Za-z0-9._]*$",
+                                                 "weight": 2
+                                               }'),
+                                               ('duplicated', '{
+                                                 "max_occurrences": 3
+                                               }'),
+                                               ('duplicated', '{
+                                                 "max_occurrences": 2
+                                               }'),
+                                               ('duplicated', '{
+                                                 "max_occurrences": 1
+                                               }'),
+                                               ('perished', '{
+                                                 "expiration_days": 300
+                                               }'),
+                                               ('perished', '{
+                                                 "expiration_days": 150
+                                               }'),
+                                               ('perished', '{
+                                                 "expiration_days": 50
+                                               }');
+
+INSERT INTO sub_rules_associative_table (rule_id, sub_rule_id, severity) VALUES
+                                                                             (1, 1, 'H'),
+                                                                             (1, 2, 'H'),
+                                                                             (1, 3, 'H'),
+                                                                             (1, 4, 'H'),
+                                                                             (1, 5, 'H'),
+                                                                             (1, 6, 'H'),
+                                                                             (1, 3, 'M'),
+                                                                             (1, 4, 'M'),
+                                                                             (1, 5, 'M'),
+                                                                             (1, 6, 'M'),
+                                                                             (1, 5, 'L'),
+                                                                             (1, 6, 'L'),
+                                                                             (2, 7, 'L'),
+                                                                             (2, 8, 'M'),
+                                                                             (2, 9, 'H'),
+                                                                             (3, 10, 'L'),
+                                                                             (3, 11, 'M'),
+                                                                             (3, 12, 'H');
 
 CREATE TABLE IF NOT EXISTS backup_files (
                                             id SERIAL PRIMARY KEY UNIQUE,
@@ -62,78 +155,6 @@ CREATE TABLE IF NOT EXISTS backup_average_scores (
                                                      total_files INT NOT NULL
 );
 
-INSERT INTO rules (name, description, weight, rules_config)
-VALUES
-    (
-        'misnamed',
-        'Le fichier est définit comme mal nommé si il ne respecte pas les exigences de la règle Mal nommé',
-        3.0,
-        '{
-          "type": "misnamed",
-          "regex_rules": [
-            {
-              "name": "Date",
-              "description": "Le nom fichier doit obligatoirement contenir une date avec le format ..._aaaa, ex facture_bill_robert_2024.pdf",
-              "regex": "_[0-9]{4}\\.",
-              "weight": 3
-            },
-            {
-              "name": "Séparateur",
-              "description": "Le nom de fichier doit contenir au moins trois séparateurs underscore entre chaque mot, ex : facture_bill_robert_2024.pdf",
-              "regex": "^[^_]*(_[^_]*){3}$",
-              "weight": 1.8
-            },
-            {
-              "name": "Trois mots",
-              "description": "Le nom de fichier doit contenir au moins trois mots explicites pour définir au mieux le fichier, ex: facture_bill_robert_2024.pdf",
-              "regex": "^\\w+_\\w+_\\w+_.+$",
-              "weight": 3
-            },
-            {
-              "name": "Extension",
-              "description": "Le nom de fichier doit obligatoirement contenir une extension comme par exemple .pdf",
-              "regex": "\\.\\w+$",
-              "weight": 2.5
-            },
-            {
-              "name": "Caractères invisibles",
-              "description": "Les espaces et autres caractères invisibles sont prohibés",
-              "regex": "^\\S+$",
-              "weight": 2
-            },
-            {
-              "name": "Caractères spéciaux",
-              "description": "Les caractères spéciaux sont prohibés",
-              "regex": "^[A-Za-z0-9._]*$",
-              "weight": 2
-            }
-          ]
-        }'
-    );
-
-
-INSERT INTO rules (name, description, weight, rules_config)
-VALUES
-    ('perished',
-     'Un fichier non modifié depuis un temps donné est considéré comme périmé',
-     2.0,
-     '{
-       "type": "perished",
-       "expiration_days": 300
-     }'
-    );
-
-INSERT INTO rules (name, description, weight, rules_config)
-VALUES
-    ('duplicated',
-     'Le fichier est considéré comme dupliqué si il apparait trop de fois sur le système',
-     1.5,
-     '{
-       "type": "duplicated",
-       "max_occurrences": 3
-     }'
-    );
-
 ALTER TABLE duplicate_associative_table
     ADD CONSTRAINT unique_file_pair UNIQUE (original_file_id, duplicate_file_id);
 
@@ -162,19 +183,18 @@ DECLARE
     rule_config JSONB;
     file_name TEXT;
 BEGIN
-    SELECT name INTO file_name FROM files WHERE id = file_id;
-    SELECT rules_config INTO rule_config
+    SELECT severity INTO calculated_score
     FROM rules
     WHERE name = 'perished';
 
-    BEGIN
-        day_duration_limit := (rule_config->>'expiration_days')::INT;
-    EXCEPTION WHEN others THEN
-        RAISE WARNING 'Impossible to load day_duration_limit, default to 300 days (10 months)';
-        day_duration_limit := 300;
-    END;
+    SELECT (rules_config->>'expiration_days')::INT
+    INTO day_duration_limit
+    FROM sub_rules
+             JOIN sub_rules_associative_table ON sub_rules.id = sub_rules_associative_table.sub_rule_id
+    WHERE sub_rules_associative_table.rule_id = (SELECT id FROM rules WHERE name = 'perished')
+      AND sub_rules_associative_table.severity = calculated_score;
 
-    SELECT NOW() - last_modified, name INTO res, file_path
+    SELECT name, NOW() - last_modified INTO file_name, res
     FROM files
     WHERE id = file_id;
 
@@ -192,7 +212,7 @@ BEGIN
         calculated_score := 'F';
     END IF;
 
-    RAISE NOTICE 'File "%" with id [%] has perished score: %', file_name, file_id, calculated_score;
+    RAISE NOTICE 'Fichier "%" avec ID [%] a un score perished de : %', file_name, file_id, calculated_score;
 
     UPDATE files
     SET perished_score = calculated_score
@@ -221,20 +241,25 @@ DECLARE
     occurrence_count INT;
     new_score CHAR(1);
     max_occurrences INT;
-    rule_config JSONB;
     file_name TEXT;
+    current_severity CHAR(1);
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
-    SELECT rules_config INTO rule_config
-    FROM rules
-    WHERE name = 'duplicated';
+    SELECT severity INTO current_severity
+    FROM files
+             JOIN rules ON rules.name = 'duplicated'
+    WHERE files.id = file_id;
 
-    BEGIN
-        max_occurrences := (rule_config->>'max_occurrences')::INT;
-    EXCEPTION WHEN others THEN
-        RAISE WARNING 'Impossible to load max_occurrences, default to 3';
+    SELECT (rules_config->>'max_occurrences')::INT INTO max_occurrences
+    FROM sub_rules
+             JOIN sub_rules_associative_table ON sub_rules.id = sub_rules_associative_table.sub_rule_id
+    WHERE sub_rules_associative_table.rule_id = (SELECT id FROM rules WHERE name = 'duplicated')
+      AND sub_rules_associative_table.severity = current_severity;
+
+    IF max_occurrences IS NULL THEN
+        RAISE WARNING 'Impossible de charger max_occurrences, valeur par défaut : 3';
         max_occurrences := 3;
-    END;
+    END IF;
 
     SELECT COUNT(*) INTO occurrence_count
     FROM files
@@ -247,7 +272,7 @@ BEGIN
     SET duplicated_score = new_score
     WHERE id = file_id;
 
-    RAISE NOTICE 'File : "%" with id [%] has duplicated score: % with % occurrences', file_name, file_id, new_score, occurrence_count;
+    RAISE NOTICE 'Fichier "%" avec ID [%] a un score duplicata de : % avec % occurrences', file_name, file_id, new_score, occurrence_count;
 END;
 $$;
 
@@ -276,38 +301,41 @@ CREATE OR REPLACE PROCEDURE calculate_misnamed_score(file_id INT)
     LANGUAGE plpgsql AS $$
 DECLARE
     res FLOAT := 0;
-    total_rule_count INT;
     tidy_score_decimal FLOAT;
     computed_misnamed_score TEXT;
-    rule_record JSONB;
+    rule_name TEXT;
     rule_weight FLOAT;
     rule_regex TEXT;
-    rule_name TEXT;
     file_name TEXT;
     sigmoid_value FLOAT;
+    current_severity CHAR(1);
+    rule_record JSONB;
 BEGIN
     SELECT name INTO file_name FROM files WHERE id = file_id;
 
-    SELECT rules_config INTO rule_record FROM rules WHERE name = 'misnamed';
+    SELECT severity INTO current_severity FROM rules WHERE name = 'misnamed' AND id = 1;
 
-    total_rule_count := jsonb_array_length(rule_record->'regex_rules');
-
-    RAISE INFO 'Applying MISNAMED Rules...';
-
-    FOR i IN 0..(total_rule_count - 1) LOOP
-            rule_name := rule_record->'regex_rules'->i->>'name';
-            rule_regex := rule_record->'regex_rules'->i->>'regex';
-            rule_weight := (rule_record->'regex_rules'->i->>'weight')::FLOAT;
+    FOR rule_record IN
+        SELECT sr.rules_config
+        FROM sub_rules_associative_table rsr
+                 JOIN sub_rules sr ON rsr.sub_rule_id = sr.id
+        WHERE rsr.rule_id = 1
+          AND rsr.severity = current_severity
+        LOOP
+            rule_name := rule_record->>'name';
+            rule_regex := rule_record->>'regex';
+            rule_weight := (rule_record->>'weight')::FLOAT;
 
             IF (SELECT regexp_matches(file_name, rule_regex) IS NOT NULL) THEN
-                RAISE INFO 'File : "%" with id [%] match the rule : %', file_name, file_id, rule_name;
+                RAISE INFO 'File : "%" with id [%] matches the rule : %', file_name, file_id, rule_name;
                 res := res + rule_weight;
             ELSE
                 RAISE INFO 'File : "%" with id [%] doesn''t match the rule : %', file_name, file_id, rule_name;
             END IF;
         END LOOP;
 
-    tidy_score_decimal := res / total_rule_count;
+    tidy_score_decimal := res / (SELECT COUNT(*) FROM sub_rules_associative_table WHERE rule_id = 1 AND severity = current_severity);
+
     sigmoid_value := 1 / (1 + exp(-tidy_score_decimal));
     computed_misnamed_score := assign_misnamed_score(sigmoid_value);
 
@@ -384,18 +412,18 @@ BEGIN
 
     SELECT (rules_config->>'weight')::FLOAT
     INTO misnamed_weight
-    FROM rules
-    WHERE name = 'misnamed';
+    FROM sub_rules
+    WHERE type = 'misnamed';
 
     SELECT (rules_config->>'weight')::FLOAT
     INTO perished_weight
-    FROM rules
-    WHERE name = 'perished';
+    FROM sub_rules
+    WHERE type = 'perished';
 
     SELECT (rules_config->>'weight')::FLOAT
     INTO duplicated_weight
-    FROM rules
-    WHERE name = 'duplicated';
+    FROM sub_rules
+    WHERE type = 'duplicated';
 
     computed_global_score := assign_global_score(loaded_misnamed_score, loaded_perished_score, loaded_duplicated_score);
 
