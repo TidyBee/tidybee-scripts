@@ -44,7 +44,7 @@ CREATE TABLE sub_rules_associative_table (
 );
 
 INSERT INTO rules (name, weight, severity) VALUES
-                                               ('misnamed', 3.0, 'H'),
+                                               ('misnamed', 3.0, 'M'),
                                                ('duplicated', 2.0, 'M'),
                                                ('perished', 1.5, 'M');
 
@@ -135,6 +135,18 @@ CREATE TABLE IF NOT EXISTS backup_files (
                                             global_score CHAR(1) NOT NULL,
                                             backup_date TIMESTAMP DEFAULT NOW()
 );
+CREATE TABLE IF NOT EXISTS backup_files (
+                                            id SERIAL PRIMARY KEY UNIQUE,
+                                            name TEXT NOT NULL UNIQUE,
+                                            size int NOT NULL,
+                                            file_hash TEXT NOT NULL,
+                                            last_modified TIMESTAMP NOT NULL,
+                                            misnamed_score CHAR(1) NOT NULL,
+                                            perished_score CHAR(1) NOT NULL,
+                                            duplicated_score CHAR(1) NOT NULL,
+                                            global_score CHAR(1) NOT NULL,
+                                            backup_date TIMESTAMP DEFAULT NOW()
+);
 
 CREATE TABLE IF NOT EXISTS backup_duplicate_associative_table (
                                                                   id SERIAL PRIMARY KEY,
@@ -152,26 +164,6 @@ CREATE TABLE IF NOT EXISTS backup_average_scores (
                                                      avg_global_score FLOAT NOT NULL,
                                                      total_files INT NOT NULL
 );
-
-CREATE OR REPLACE FUNCTION update_rule_severity(rule_name TEXT, new_severity CHAR)
-    RETURNS TABLE (
-                      sub_rule_id INT,
-                      sub_rule_type TEXT,
-                      rules_config JSONB
-                  ) AS $$
-BEGIN
-    UPDATE rules
-    SET severity = new_severity
-    WHERE name = rule_name;
-
-    RETURN QUERY
-        SELECT sr.id, sr.type, sr.rules_config
-        FROM sub_rules sr
-                 JOIN sub_rules_associative_table rsr ON sr.id = rsr.sub_rule_id
-                 JOIN rules r ON r.id = rsr.rule_id
-        WHERE r.name = rule_name AND rsr.severity = new_severity;
-END;
-$$ LANGUAGE plpgsql;
 
 ALTER TABLE duplicate_associative_table
     ADD CONSTRAINT unique_file_pair UNIQUE (original_file_id, duplicate_file_id);
@@ -197,6 +189,8 @@ DECLARE
     calculated_score CHAR(1);
     res INTERVAL;
     day_duration_limit INT;
+    file_path TEXT;
+    rule_config JSONB;
     file_name TEXT;
 BEGIN
     SELECT severity INTO calculated_score
