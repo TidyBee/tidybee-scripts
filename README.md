@@ -6,6 +6,17 @@ Choose one of the 3 solutions below to run the containers (depending on your con
 
 ### Run containers from GHCR (recommended)
 
+#### Run containers in prod (from prod branch) mode
+
+To run the containers in prod mode, please use the `compose/docker-compose-prod.yaml` configuration:
+
+```
+# tidybe-scripts/compose
+docker compose -f docker-compose-prod.yml <COMMAND> [SERVICE]
+```
+
+#### Run containers in dev (from main branch) mode 
+
 The default compose file will pull the images from GitHub Container Registry and run them. Use the following command to do so:
 
 ```
