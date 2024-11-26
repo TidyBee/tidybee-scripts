@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS files (
                                      misnamed_score CHAR(1) NOT NULL,
                                      perished_score CHAR(1) NOT NULL,
                                      duplicated_score CHAR(1) NOT NULL,
-                                     global_score CHAR(1) NOT NULL
+                                     global_score CHAR(1) NOT NULL,
+                                     provenance TEXT NOT NULL DEFAULT 'agent'
 );
 
 CREATE TABLE IF NOT EXISTS duplicate_associative_table (
@@ -73,37 +74,37 @@ VALUES
           "regex_rules": [
             {
               "name": "Date",
-              "description": "Le nom fichier doit obligatoirement contenir une date avec le format ..._aaaa, ex facture_bill_robert_2024.pdf",
+              "description": "Le nom fichier doit obligatoirement contenir une date avec le format ..._aaaa, ex facture_bill_robert_2024.pdf.\\n Ajouter une date permet de suivre facilement l’évolution des documents et d’identifier rapidement la version la plus récente",
               "regex": "_[0-9]{4}\\.",
               "weight": 3
             },
             {
               "name": "Séparateur",
-              "description": "Le nom de fichier doit contenir au moins trois séparateurs underscore entre chaque mot, ex : facture_bill_robert_2024.pdf",
+              "description": "Le nom de fichier doit contenir au moins trois séparateurs underscore entre chaque mot, ex : facture_bill_robert_2024.pdf.\n Les espaces ou séparateurs variés (comme _, -, etc.) peuvent entraîner des confusions ou des incompatibilités dans certains systèmes. Optez pour un seul type de séparateur et appliquez-le systématiquement.",
               "regex": "^[^_]*(_[^_]*){3}$",
               "weight": 1.8
             },
             {
-              "name": "Trois mots",
-              "description": "Le nom de fichier doit contenir au moins trois mots explicites pour définir au mieux le fichier, ex: facture_bill_robert_2024.pdf",
-              "regex": "^\\w+_\\w+_\\w+_.+$",
+              "name": "Deux mots",
+              "description": "Le nom de fichier doit contenir au moins deux mots explicites pour définir au mieux le fichier, ex: facture_robert_2024.pdf.\n Un nom de fichier trop court manque souvent de clarté, alors q''un fichier trop long peut très rapidement alourdir l''espace de stockage. Ajouter des mots descriptifs facilite la compréhension de son contenu sans devoir l''ouvrir.",
+              "regex": "^\\w+_\\w+_.+$",
               "weight": 3
             },
             {
               "name": "Extension",
-              "description": "Le nom de fichier doit obligatoirement contenir une extension comme par exemple .pdf",
+              "description": "Le nom de fichier doit obligatoirement contenir une extension comme par exemple .pdf. \n Les extensions (.pdf, .docx, etc.) sont indispensables pour associer un fichier à son logiciel de lecture. Cela garantit également une compatibilité entre systèmes et utilisateurs.",
               "regex": "\\.\\w+$",
               "weight": 2.5
             },
             {
               "name": "Caractères invisibles",
-              "description": "Les espaces et autres caractères invisibles sont prohibés",
+              "description": "Les espaces et autres caractères invisibles sont prohibés. \n Les caractères invisibles (tabulations, espaces multiples) peuvent provoquer des erreurs lors du traitement automatique des fichiers ou créer des doublons difficiles à identifier.",
               "regex": "^\\S+$",
               "weight": 2
             },
             {
               "name": "Caractères spéciaux",
-              "description": "Les caractères spéciaux sont prohibés",
+              "description": "Les caractères spéciaux sont prohibés. \n Les caractères spéciaux (@, #, &, etc.) peuvent entraîner des problèmes de compatibilité, notamment lors de transferts de fichiers sur des systèmes différents ou lors d’une intégration dans des bases de données.",
               "regex": "^[A-Za-z0-9._]*$",
               "weight": 2
             }
