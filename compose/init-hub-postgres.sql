@@ -292,6 +292,7 @@ BEGIN
     SELECT rules_config INTO rule_record FROM rules WHERE name = 'misnamed';
 
     total_rule_count := jsonb_array_length(rule_record->'regex_rules');
+
     RAISE INFO 'Applying MISNAMED Rules...';
 
     FOR i IN 0..(total_rule_count - 1) LOOP
