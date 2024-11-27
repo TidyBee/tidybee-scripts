@@ -81,7 +81,7 @@ VALUES
             {
               "name": "Séparateur",
               "description": "Le nom de fichier doit contenir au moins trois séparateurs underscore entre chaque mot, ex : facture_bill_robert_2024.pdf.\n Les espaces ou séparateurs variés (comme _, -, etc.) peuvent entraîner des confusions ou des incompatibilités dans certains systèmes. Optez pour un seul type de séparateur et appliquez-le systématiquement.",
-              "regex": "^[^_]*(_[^_]*){3}$",
+              "regex": "^[^_]*(_[^_]*){2}$",
               "weight": 1.8
             },
             {
@@ -287,12 +287,12 @@ DECLARE
     file_name TEXT;
     sigmoid_value FLOAT;
 BEGIN
-    SELECT name INTO file_name FROM files WHERE id = file_id;
+    SELECT regexp_replace(name, '.*/', '') INTO file_name FROM files WHERE id = file_id;
 
     SELECT rules_config INTO rule_record FROM rules WHERE name = 'misnamed';
 
     total_rule_count := jsonb_array_length(rule_record->'regex_rules');
-
+    RAISE INFO 'TEST FILE : "%"', file_name;
     RAISE INFO 'Applying MISNAMED Rules...';
 
     FOR i IN 0..(total_rule_count - 1) LOOP
