@@ -67,7 +67,7 @@ INSERT INTO rules (name, description, weight, rules_config)
 VALUES
     (
         'misnamed',
-        'Le fichier est définit comme mal nommé si il ne respecte pas les exigences de la règle Mal nommé',
+        'Le nommage des fichiers est une étape essentielle pour garantir une gestion efficace et une collaboration fluide dans les entreprises. Des fichiers bien nommés facilitent leur identification, leur classement, et leur partage. Voici pourquoi les règles ci-dessous sont cruciales',
         3.0,
         '{
           "type": "misnamed",
@@ -292,7 +292,6 @@ BEGIN
     SELECT rules_config INTO rule_record FROM rules WHERE name = 'misnamed';
 
     total_rule_count := jsonb_array_length(rule_record->'regex_rules');
-    RAISE INFO 'TEST FILE : "%"', file_name;
     RAISE INFO 'Applying MISNAMED Rules...';
 
     FOR i IN 0..(total_rule_count - 1) LOOP
