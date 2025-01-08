@@ -10,7 +10,7 @@ import random
 
 fake = Faker()
 
-root_dir = 'test_folder'
+root_dir = 'agent/test_data'
 
 structure = {
     "Admin": ["Exécutif", "Gestion"],

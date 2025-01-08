@@ -1,7 +1,7 @@
 services:
   agent:
     build:
-      context: https://github.com/TidyBee/tidybee-agent.git#dev
+      context: https://github.com/TidyBee/tidybee-agent.git
     ports:
       - "8111:8111"
     environment:
