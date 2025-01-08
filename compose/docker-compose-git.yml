@@ -9,7 +9,7 @@ services:
     depends_on:
       - hub-tidy-events
     volumes:
-      - ./test_folder:/app/tests/assets/test_folder
+      - ./agent/test_data:/app/tests/assets/test_folder
   hub-api-gateway:
     build:
       context: https://github.com/tidybee/tidybee-hub.git
@@ -57,7 +57,7 @@ services:
       service: hub-postgres
   frontend:
     build:
-      context: https://github.com/tidybee/tidybee-frontend.git
+      context: https://github.com/tidybee/tidybee-frontend.git#env-&-tests
     ports:
       - "8080:80"
     depends_on:
