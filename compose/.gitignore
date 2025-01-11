@@ -1,2 +1,3 @@
-database/
 .env
+database
+gcloud_service_account_keys.json

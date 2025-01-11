@@ -2,20 +2,23 @@
 
 ## compose
 
-Choose one of the 3 solutions below to run the containers (depending on your configurations, you may need to run docker with the root permissions).
+### PostgreSQL database setup
+
+The `hub-postgres` service needs some variables do get running, copy the template env file and edit it:
+
+```
+git clone git@github.com:tidybee/tidybee-scripts.git
+cd tidybee-scripts/compose
+cp .env.template .env
+```
+
+### Google Cloud service account setup
+
+Add your own `tidybee-scripts/compose/gcloud_service_account_keys.json` file.
+
+Then, choose one of the 3 solutions below to run the containers.
 
 ### Run containers from GHCR (recommended)
-
-#### Run containers in prod (from prod branch) mode
-
-To run the containers in prod mode, please use the `compose/docker-compose-prod.yaml` configuration:
-
-```
-# tidybe-scripts/compose
-docker compose -f docker-compose-prod.yml <COMMAND> [SERVICE]
-```
-
-#### Run containers in dev (from main branch) mode 
 
 The default compose file will pull the images from GitHub Container Registry and run them. Use the following command to do so:
 
