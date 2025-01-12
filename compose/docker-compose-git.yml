@@ -10,6 +10,7 @@ services:
       - hub-tidy-events
     volumes:
       - ./agent/test_data:/app/tests/assets/test_folder
+      - ./agent/config:/app/config
   hub-api-gateway:
     build:
       context: https://github.com/tidybee/tidybee-hub.git
@@ -61,7 +62,7 @@ services:
     ports:
       - "8080:80"
     depends_on:
-    - grpc-web-proxy
+      - grpc-web-proxy
   grpc-web-proxy:
     build:
       context: ./grpc-web-proxy
