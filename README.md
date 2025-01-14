@@ -12,10 +12,6 @@ cd tidybee-scripts/compose
 cp .env.template .env
 ```
 
-### Google Cloud service account setup
-
-Add your own `tidybee-scripts/compose/gcloud_service_account_keys.json` file.
-
 Then, choose one of the 3 solutions below to run the containers.
 
 ### Run containers from GHCR (recommended)

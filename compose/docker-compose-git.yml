@@ -50,8 +50,6 @@ services:
       hub-postgres:
         condition: service_healthy
     restart: on-failure
-    volumes:
-      - ./gcloud_service_account_keys.json:/app/gcloud_service_account_keys.json
   hub-postgres:
     extends:
       file: hub-postgres.yml
