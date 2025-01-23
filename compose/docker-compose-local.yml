@@ -52,7 +52,7 @@ services:
     restart: on-failure
   hub-postgres:
     extends:
-      file: ./hub-postgres.yml
+      file: ./tidybee-scripts/compose/hub-postgres.yml
       service: hub-postgres
   frontend:
     build:
