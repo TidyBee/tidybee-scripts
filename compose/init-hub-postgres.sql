@@ -264,10 +264,8 @@ BEGIN
         RETURN 'C';
     ELSIF score >= 0.6 THEN
         RETURN 'D';
-    ELSIF score >= 0.5 THEN
-        RETURN 'E';
     ELSE
-        RETURN 'F';
+        RETURN 'E';
     END IF;
 END;
 $$ LANGUAGE plpgsql;
@@ -340,9 +338,9 @@ DECLARE
     global_score CHAR(1);
     decimal_value FLOAT;
 BEGIN
-    IF misnamed_score NOT IN ('A', 'B', 'C', 'D', 'E', 'F') OR
-       perished_score NOT IN ('A', 'B', 'C', 'D', 'E', 'F') OR
-       duplicated_score NOT IN ('A', 'B', 'C', 'D', 'E', 'F') THEN
+    IF misnamed_score NOT IN ('A', 'B', 'C', 'D', 'E') OR
+       perished_score NOT IN ('A', 'B', 'C', 'D', 'E') OR
+       duplicated_score NOT IN ('A', 'B', 'C', 'D', 'E') THEN
         RAISE INFO 'Undefined score U detected, result in U global score';
         RETURN 'U';
     END IF;

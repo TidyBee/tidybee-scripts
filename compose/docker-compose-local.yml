@@ -9,8 +9,8 @@ services:
     depends_on:
       - hub-tidy-events
     volumes:
-      - ./agent/test_data:/app/tests/assets/test_folder
-      - ./agent/config:/app/config
+      - ./tidybee-scripts/compose/agent/test_data:/app/tests/assets/test_folder
+      #- ./tidybee-scripts/compose/agent/config:/app/config
   hub-api-gateway:
     build:
       context: ./tidybee-hub
@@ -52,7 +52,7 @@ services:
     restart: on-failure
   hub-postgres:
     extends:
-      file: ./tidybee-scripts/compose/hub-postgres.yml
+      file: ./hub-postgres.yml
       service: hub-postgres
   frontend:
     build:
