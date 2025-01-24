@@ -14,14 +14,14 @@ def create_challenge_files(base_path):
     # Fichiers mal nommés
     misnamed_files = [
         ("projet-secret_marc.pdf", "mauvais séparateur"),
-        ("photo_mariage_copie.pdf", "petit piege de fichier dupliqué qui ne l'est pas"),
-        ("@liste_fourn!sseur_2023.docx",
+        ("mariage.pdf", "petit piege de fichier dupliqué qui ne l'est pas"),
+        ("c@r@ctere spec!aux.docx",
          "Fichier contenant des caractères spéciaux comme %, @ ou !."),
-        ("facture_amazon", "Document sans extension, difficile à ouvrir."),
+        ("sans_extension", "Document sans extension, difficile à ouvrir."),
         ("Résumé_reunion1012_2021.docx",
          "Résumé de données financières, avec des erreurs dans le nom."),
         ("backup_db!.txt", "Sauvegarde avec des caractères illégaux dans le titre."),
-        ("photo vacances été.jpg",
+        ("photos été.jpg",
          "Une photo mal nommée, mélange d'espaces et de caractères spéciaux."),
         ("Doc1", "Document inutile et très mal nommé."),
         ("Doc2", "Document inutile et très mal nommé."),
