@@ -14,65 +14,66 @@ def create_challenge_files(base_path):
 
     # Fichiers mal nommés
     misnamed_files = [
-        ("projet-secret_marc.pdf", "mauvais séparateur"),
-        ("mariage.pdf", "petit piege de fichier dupliqué qui ne l'est pas"),
+        ("projet-secret_marc.pdf", "mauvais séparateur", "2023-03-01"),
+        ("mariage.pdf", "petit piege de fichier dupliqué qui ne l'est pas", "2023-02-15"),
         ("c@r@ctere spec!aux.docx",
-         "Fichier contenant des caractères spéciaux comme %, @ ou !."),
-        ("sans_extension", "Document sans extension, difficile à ouvrir."),
+        "Fichier contenant des caractères spéciaux comme %, @ ou !.", "2023-03-10"),
+        ("sans_extension", "Document sans extension, difficile à ouvrir.", "2023-01-20"),
         ("Résumé_reunion1012_2021.docx",
-         "Résumé de données financières, avec des erreurs dans le nom."),
-        ("backup_db!.txt", "Sauvegarde avec des caractères illégaux dans le titre."),
-        ("photos été.jpg",
-         "Une photo mal nommée, mélange d'espaces et de caractères spéciaux."),
-        ("Doc1", "Document inutile et très mal nommé."),
-        ("Doc2", "Document inutile et très mal nommé."),
-        ("Doc3", "Document inutile et très mal nommé."),
-        ("Doc4", "Document inutile et très mal nommé."),
-        ("Doc5", "Document inutile et très mal nommé."),
-        ("Doc6", "Document inutile et très mal nommé."),
-        ("Doc7", "Document inutile et très mal nommé."),
-        ("Doc8", "Document inutile et très mal nommé."),
-        ("Doc9", "Document inutile et très mal nommé."),
-        ("Doc10", "Document inutile et très mal nommé."),
-        ("Doc11", "Document inutile et très mal nommé."),
-        ("Doc12", "Document inutile et très mal nommé."),
-        ("Doc13", "Document inutile et très mal nommé."),
-        ("Doc14", "Document inutile et très mal nommé."),
-        ("Doc15", "Document inutile et très mal nommé."),
-        ("Doc16", "Document inutile et très mal nommé."),
-        ("Doc17", "Document inutile et très mal nommé."),
-        ("Doc18", "Document inutile et très mal nommé."),
+        "Résumé de données financières, avec des erreurs dans le nom.", "2023-04-01"),
+        ("backup_db!.txt",
+         "Sauvegarde avec des caractères illégaux dans le titre.", "2023-03-25"),
+        ("photos été.jpg", "Une photo mal nommée, mélange d'espaces et de caractères spéciaux.", "2023-02-10"),
+        ("Doc1", "Document inutile et très mal nommé.", "2023-03-05"),
+        ("Doc2", "Document inutile et très mal nommé.", "2023-02-20"),
+        ("Doc3", "Document inutile et très mal nommé.", "2023-01-15"),
+        ("Doc4", "Document inutile et très mal nommé.", "2023-04-10"),
+        ("Doc5", "Document inutile et très mal nommé.", "2023-03-30"),
+        ("Doc6", "Document inutile et très mal nommé.", "2023-01-25"),
+        ("Doc7", "Document inutile et très mal nommé.", "2023-04-05"),
+        ("Doc8", "Document inutile et très mal nommé.", "2023-02-15"),
+        ("Doc9", "Document inutile et très mal nommé.", "2023-01-10"),
+        ("Doc10", "Document inutile et très mal nommé.", "2023-03-20"),
+        ("Doc11", "Document inutile et très mal nommé.", "2023-03-05"),
+        ("Doc12", "Document inutile et très mal nommé.", "2023-02-25"),
+        ("Doc13", "Document inutile et très mal nommé.", "2023-01-05"),
+        ("Doc14", "Document inutile et très mal nommé.", "2023-03-01"),
+        ("Doc15", "Document inutile et très mal nommé.", "2023-02-10"),
+        ("Doc16", "Document inutile et très mal nommé.", "2023-01-20"),
+        ("Doc17", "Document inutile et très mal nommé.", "2023-04-01"),
+        ("Doc18", "Document inutile et très mal nommé.", "2023-03-15"),
     ]
 
-    # Fichiers correctement nommés
+
     correct_files = [
         ("facture_achats_mars_2023.pdf",
-         "Facture d'achats pour le mois de mars 2023."),
+        "Facture d'achats pour le mois de mars 2023.", "2024-12-01"),
         ("rapport_activite_2022.docx",
-         "Rapport complet des activités de l'année 2022."),
+        "Rapport complet des activités de l'année 2022.", "2024-11-25"),
         ("planning_reunion_equipe_2024.xlsx",
-         "Planning de réunion d'équipe pour l'année 2024."),
-        ("notes_projet_alpha_2023.txt", "Notes sur le projet Alpha rédigées en 2023."),
+        "Planning de réunion d'équipe pour l'année 2024.", "2025-01-10"),
+        ("notes_projet_alpha_2023.txt",
+        "Notes sur le projet Alpha rédigées en 2023.", "2024-10-20"),
         ("liste_clients_premium_2024.csv",
-         "Liste des clients premium avec leurs informations principales."),
+        "Liste des clients premium avec leurs informations principales.", "2024-12-15"),
         ("budget_previsionnel_2025.pdf",
-         "Document détaillant le budget prévisionnel de l'année 2024."),
+        "Document détaillant le budget prévisionnel de l'année 2024.", "2025-01-05"),
         ("proposition_commerciale_2023.pdf",
-         "Proposition commerciale dupliquée, même contenu sur trois fichiers."),
+        "Proposition commerciale dupliquée, même contenu sur trois fichiers.", "2024-12-20"),
         ("proposition_commerciale_2023 copie.pdf",
-         "Proposition commerciale dupliquée, même contenu sur trois fichiers."),
+        "Proposition commerciale dupliquée, même contenu sur trois fichiers.", "2024-12-25"),
     ]
 
     # Créer les fichiers mal nommés
-    for name, content in misnamed_files:
-        create_file(base_path, name, content)
+    for name, content, date in misnamed_files:
+            create_file(base_path, name, content, date)
 
     # Créer les fichiers correctement nommés
-    for name, content in correct_files:
-        create_file(base_path, name, content)
+    for name, content, date in correct_files:
+        create_file(base_path, name, content, date)
 
 
-def create_file(folder_path, file_name, content, custom_date="2022-01-01"):
+def create_file(folder_path, file_name, content, custom_date):
     file_path = os.path.join(folder_path, file_name)
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(content)
@@ -97,8 +98,6 @@ def set_file_timestamps(file_path, custom_date="2022-01-01"):
     except ValueError:
         print(f"Erreur : Format de date invalide pour '{
               custom_date}'. Utilisez 'YYYY-MM-DD'.")
-
-# Choisir le dossier racine
 
 
 def main():
