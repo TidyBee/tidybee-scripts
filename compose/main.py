@@ -14,11 +14,11 @@ def create_challenge_files(base_path):
 
     # Fichiers mal nommés
     misnamed_files = [
-        ("projet-secret_marc.pdf", "mauvais séparateur", "2023-03-01"),
+        ("projet-secret_marc.pdf", "mauvais séparateur", "2024-03-01"),
         ("mariage.pdf", "petit piege de fichier dupliqué qui ne l'est pas", "2023-02-15"),
         ("c@r@ctere spec!aux.docx",
-        "Fichier contenant des caractères spéciaux comme %, @ ou !.", "2023-03-10"),
-        ("sans_extension", "Document sans extension, difficile à ouvrir.", "2023-01-20"),
+        "Fichier contenant des caractères spéciaux comme %, @ ou !.", "2024-03-10"),
+        ("sans_extension", "Document sans extension, difficile à ouvrir.", "2024-01-20"),
         ("Résumé_reunion1012_2021.docx",
         "Résumé de données financières, avec des erreurs dans le nom.", "2023-04-01"),
         ("backup_db!.txt",
@@ -47,7 +47,7 @@ def create_challenge_files(base_path):
 
     correct_files = [
         ("facture_achats_mars_2023.pdf",
-        "Facture d'achats pour le mois de mars 2023.", "2024-12-01"),
+        "Facture d'achats pour le mois de mars 2023.", "2023-12-01"),
         ("rapport_activite_2022.docx",
         "Rapport complet des activités de l'année 2022.", "2024-11-25"),
         ("planning_reunion_equipe_2024.xlsx",
@@ -59,9 +59,9 @@ def create_challenge_files(base_path):
         ("budget_previsionnel_2025.pdf",
         "Document détaillant le budget prévisionnel de l'année 2024.", "2025-01-05"),
         ("proposition_commerciale_2023.pdf",
-        "Proposition commerciale dupliquée, même contenu sur trois fichiers.", "2024-12-20"),
+        "Proposition commerciale dupliquée, même contenu sur 2 fichiers.", "2023-12-25"),
         ("proposition_commerciale_2023 copie.pdf",
-        "Proposition commerciale dupliquée, même contenu sur trois fichiers.", "2024-12-25"),
+        "Proposition commerciale dupliquée, même contenu sur 2 fichiers.", "2023-12-25"),
     ]
 
     # Créer les fichiers mal nommés
