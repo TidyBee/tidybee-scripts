@@ -187,10 +187,8 @@ BEGIN
         calculated_score := 'C';
     ELSIF res <= INTERVAL '1 day' * (day_duration_limit + day_duration_limit / 2) THEN
         calculated_score := 'D';
-    ELSIF res <= INTERVAL '1 day' * (day_duration_limit * 2) THEN
-        calculated_score := 'E';
     ELSE
-        calculated_score := 'F';
+        calculated_score := 'E';
     END IF;
 
     RAISE NOTICE 'File "%" with id [%] has perished score: %', file_name, file_id, calculated_score;
@@ -210,8 +208,7 @@ BEGIN
                WHEN occurrences <= 1 THEN 'B'
                WHEN occurrences <= 3 THEN 'C'
                WHEN occurrences <= 5 THEN 'D'
-               WHEN occurrences <= 8 THEN 'E'
-               ELSE 'F'
+               ELSE 'E'
         END;
 END;
 $$ LANGUAGE plpgsql;

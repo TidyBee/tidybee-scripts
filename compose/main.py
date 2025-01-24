@@ -54,14 +54,10 @@ def create_challenge_files(base_path):
          "Liste des clients premium avec leurs informations principales."),
         ("budget_previsionnel_2025.pdf",
          "Document détaillant le budget prévisionnel de l'année 2024."),
-    ]
-
-    # Fichiers dupliqués
-    duplicates = [
         ("proposition_commerciale_2023.pdf",
          "Proposition commerciale dupliquée, même contenu sur trois fichiers."),
-        ("presentation$_projet_bet@_2022.pdf",
-         "Présentation PowerPoint répétée plusieurs fois."),
+        ("proposition_commerciale_2023 copie.pdf",
+         "Proposition commerciale dupliquée, même contenu sur trois fichiers."),
     ]
 
     # Créer les fichiers mal nommés
@@ -71,11 +67,6 @@ def create_challenge_files(base_path):
     # Créer les fichiers correctement nommés
     for name, content in correct_files:
         create_file(base_path, name, content)
-
-    # Créer les fichiers dupliqués (3 copies de chaque fichier)
-    for name, content in duplicates:
-        for i in range(3):
-            create_file(base_path, f"{i+1}_{name}", content)
 
 
 def create_file(folder_path, file_name, content):
