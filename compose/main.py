@@ -93,11 +93,9 @@ def set_file_timestamps(file_path, custom_date="2022-01-01"):
 
         # Appliquer les nouveaux timestamps au fichier
         os.utime(file_path, (target_timestamp, target_timestamp))
-        print(f"Métadonnées modifiées pour : {
-              file_path} | Date définie : {custom_date}")
+        print(f"Métadonnées modifiées pour : {file_path} | Date définie : {custom_date}")
     except ValueError:
-        print(f"Erreur : Format de date invalide pour '{
-              custom_date}'. Utilisez 'YYYY-MM-DD'.")
+        print(f"Erreur : Format de date invalide pour '{custom_date}'. Utilisez 'YYYY-MM-DD'.")
 
 
 def main():
