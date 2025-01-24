@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+from datetime import datetime, timedelta
 
 
 def create_challenge_files(base_path):
@@ -71,28 +72,35 @@ def create_challenge_files(base_path):
         create_file(base_path, name, content)
 
 
-def create_file(folder_path, file_name, content, days_offset=8):
+def create_file(folder_path, file_name, content, custom_date="2022-01-01"):
     file_path = os.path.join(folder_path, file_name)
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(content)
     print(f"Fichier créé : {file_path}")
 
-    if days_offset != 0:
-        set_file_timestamps(file_path, days_offset)
+    set_file_timestamps(file_path, custom_date)
 
-def set_file_timestamps(file_path, days_offset):
+
+def set_file_timestamps(file_path, custom_date="2022-01-01"):
     """
     Modifie les dates de dernière modification et d'accès du fichier.
     """
-    # Calculer le timestamp en fonction du décalage en jours
-    current_time = time.time()
-    modified_time = current_time + abs(days_offset) * 24 * 60 * 60
+    try:
+        # Convertir la date en timestamp
+        target_date = datetime.strptime(custom_date, "%Y-%m-%d")
+        target_timestamp = time.mktime(target_date.timetuple())
 
-    # Appliquer les nouveaux timestamps au fichier
-    os.utime(file_path, (modified_time, modified_time))
-    print(f"Métadonnées modifiées pour : {file_path} | Dernière utilisation : il y a {abs(days_offset)} jours.")
+        # Appliquer les nouveaux timestamps au fichier
+        os.utime(file_path, (target_timestamp, target_timestamp))
+        print(f"Métadonnées modifiées pour : {
+              file_path} | Date définie : {custom_date}")
+    except ValueError:
+        print(f"Erreur : Format de date invalide pour '{
+              custom_date}'. Utilisez 'YYYY-MM-DD'.")
 
 # Choisir le dossier racine
+
+
 def main():
     root_dir = "agent/test_data"
     create_challenge_files(root_dir)
