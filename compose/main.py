@@ -1,13 +1,13 @@
 import os
+import shutil
+
 
 
 def create_challenge_files(base_path):
-    # Vérifier si le dossier de base existe, sinon le créer
-    if not os.path.exists(base_path):
-        os.makedirs(base_path)
-        print(f"Dossier racine créé : {base_path}")
-    else:
-        print(f"Dossier racine déjà existant : {base_path}")
+    if os.path.exists(base_path):
+        shutil.rmtree(base_path)
+        print(f"Contenu du dossier supprimé : {base_path}")
+    os.makedirs(base_path)
 
     # Fichiers mal nommés
     misnamed_files = [
