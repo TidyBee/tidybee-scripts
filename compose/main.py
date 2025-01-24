@@ -1,6 +1,6 @@
 import os
 import shutil
-
+import time
 
 
 def create_challenge_files(base_path):
@@ -64,19 +64,33 @@ def create_challenge_files(base_path):
 
     # Créer les fichiers mal nommés
     for name, content in misnamed_files:
-        create_file(base_path, name, content)
+        create_file(base_path, name, content, 600)
 
     # Créer les fichiers correctement nommés
     for name, content in correct_files:
         create_file(base_path, name, content)
 
 
-def create_file(folder_path, file_name, content):
+def create_file(folder_path, file_name, content, days_offset=8):
     file_path = os.path.join(folder_path, file_name)
     with open(file_path, "w", encoding="utf-8") as file:
         file.write(content)
     print(f"Fichier créé : {file_path}")
 
+    if days_offset != 0:
+        set_file_timestamps(file_path, days_offset)
+
+def set_file_timestamps(file_path, days_offset):
+    """
+    Modifie les dates de dernière modification et d'accès du fichier.
+    """
+    # Calculer le timestamp en fonction du décalage en jours
+    current_time = time.time()
+    modified_time = current_time + (days_offset * 24 * 60 * 60)
+
+    # Appliquer les nouveaux timestamps au fichier
+    os.utime(file_path, (modified_time, modified_time))
+    print(f"Métadonnées modifiées pour : {file_path} | Dernière utilisation : il y a {abs(days_offset)} jours.")
 
 # Choisir le dossier racine
 def main():
