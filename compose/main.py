@@ -64,7 +64,7 @@ def create_challenge_files(base_path):
 
     # Créer les fichiers mal nommés
     for name, content in misnamed_files:
-        create_file(base_path, name, content, 20)
+        create_file(base_path, name, content)
 
     # Créer les fichiers correctement nommés
     for name, content in correct_files:
@@ -86,7 +86,7 @@ def set_file_timestamps(file_path, days_offset):
     """
     # Calculer le timestamp en fonction du décalage en jours
     current_time = time.time()
-    modified_time = current_time + (days_offset * 24 * 60 * 60)
+    modified_time = current_time + days_offset
 
     # Appliquer les nouveaux timestamps au fichier
     os.utime(file_path, (modified_time, modified_time))
