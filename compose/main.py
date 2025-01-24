@@ -64,7 +64,7 @@ def create_challenge_files(base_path):
 
     # Créer les fichiers mal nommés
     for name, content in misnamed_files:
-        create_file(base_path, name, content, 600)
+        create_file(base_path, name, content, 20)
 
     # Créer les fichiers correctement nommés
     for name, content in correct_files:
